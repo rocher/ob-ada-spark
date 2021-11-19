@@ -21,3 +21,13 @@ Additional and detailed information will be provided soon.
 CAVEAT: To have font highlight (keywords, variables) in Ada/SPARK code blocks in
 =org-mode= , it is necessary to have =ada-mode= installed and open and Ada file
 in Emacs before the =org= file.
+
+** Examples
+*** Ada "Hello World"
+
+[[ada.gif]]
+
+
+*** SPARK execution
+
+*** SPARK verification
