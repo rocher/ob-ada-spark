@@ -30,4 +30,8 @@ in Emacs before the =org= file.
 
 *** SPARK execution
 
+[[spark-execution.gif]]
+
 *** SPARK verification
+
+[[spark-prove.gif]]
