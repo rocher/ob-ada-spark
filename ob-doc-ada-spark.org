@@ -1,0 +1,105 @@
+#+OPTIONS:    H:3 num:nil toc:2 \n:nil ::t |:t ^:{} -:t f:t *:t tex:t d:(HIDE) tags:not-in-toc broken-links:nil
+#+STARTUP:    align fold nodlcheck hidestars oddeven lognotestate hideblocks
+#+SEQ_TODO:   TODO(t) INPROGRESS(i) WAITING(w@) | DONE(d) CANCELED(c@)
+#+TAGS:       Write(w) Update(u) Fix(f) Check(c) noexport(n)
+#+TITLE:      Ada Source Code Blocks in Babel
+#+AUTHOR:     Francesc Rocher
+#+EMAIL:      francesc.rocher at gmail dot com
+#+LANGUAGE:   en
+#+HTML_LINK_UP:    index.html
+#+HTML_LINK_HOME:  https://orgmode.org/worg/
+#+EXCLUDE_TAGS: noexport
+
+#+name: banner
+#+begin_export html
+  <div id="subtitle" style="float: center; text-align: center;">
+  <p>
+  Babel support for <a href="https://www.adaic.org/">Ada</a>
+  </p>
+  <p>
+  <a href="https://www.adaic.org/">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Ada_Mascot_with_slogan.svg/330px-Ada_Mascot_with_slogan.svg.png" width="242"/>
+  </a>
+  </p>
+  </div>
+#+end_export
+
+* Template Checklist [4/12]                                        :noexport:
+  - [X] Revise #+TITLE:
+  - [X] Indicate #+AUTHOR:
+  - [X] Add #+EMAIL:
+  - [X] Revise banner source block [3/3]
+    - [X] Add link to a useful language web site
+    - [X] Replace "Language" with language name
+    - [X] Find a suitable graphic and use it to link to the language web site
+  - [ ] Write an [[Introduction]]
+  - [ ] Describe [[Requirements and Setup][Requirements and Setup]]
+  - [ ] Replace "Language" with language name in [[Org Mode Features for Language Source Code Blocks][Babel Features for Language Source Code Blocks]]
+  - [ ] Describe [[Header Arguments][Header Arguments]]
+  - [ ] Describe support for [[Sessions]]
+  - [ ] Describe [[Result Types][Result Types]]
+  - [ ] Describe [[Other]] differences from supported languages
+  - [ ] Provide brief [[Examples of Use][Examples of Use]]
+
+* Introduction
+Ada is a strongly-typed programming language that supports structured,
+object-oriented, distributed and concurrent programming.
+
+  - Range of typical uses within Org Mode.
+   * Teaching Ada
+   * Literate programming with Ada
+
+* Requirements and Setup
+  - Installation and configuration of language software
+  - Emacs configuration
+  - Org-mode configuration (org-babel-do-load-languages)
+
+* Babel Features for Language Source Code Blocks
+** Header Arguments
+*** Custom values
+   - Language-specific default values
+*** Header arguments
+   - Language-specific header arguments
+** Sessions
+Ada is a compiled programming language and does not support sessions.
+** Result Types
+   - Which result types are supported?
+** Other
+Ada support for Babel is not so different from other compiled languages, like C
+or C++.
+
+* Examples of Use
+** Hello World
+#+BEGIN_SRC ada
+  with Ada.Text_IO; use Ada.Text_IO;
+
+  procedure Hello_World is
+  begin
+     Put_Line ("Hello, world!");
+  end Hello_World;
+#+END_SRC
+
+#+RESULTS:
+: [ result will appear here ]
+
+#+BEGIN_SRC ada
+  with Ada.Text_IO; use Ada.Text_IO;
+
+  function Hello_World return Integer is
+  begin
+     Put_Line ("Hello, world!");
+     return 0;
+  end Hello_World;
+#+END_SRC
+
+#+RESULTS:
+: [ result will appear here ]
+** Common Uses
+*** Common uses of Ada programming language
+   *
+
+** Other resources
+**** Online resources
+   * [[blah][Curated list]] of Ada resources
+   * [[https://learn.adacore.com/courses/intro-to-ada/][Introduction to Ada]], interactive course at AdaCore
+**** Books
