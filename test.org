@@ -1,22 +1,22 @@
 #+TITLE:Ada/SPARK support for org-mode
 
-* Hello World Example
+
+* Ada/SPARK : Hello World Example
 
 #+BEGIN_SRC ada
-  with Ada.Text_IO; use Ada.Text_IO;
-  procedure Hello is
-  begin
-     Put_Line("Hello world! This is Ada/SPARK support for Emacs org-mode!");
-  end Hello;
+    with Ada.Text_IO; use Ada.Text_IO;
+    procedure Hello is
+    begin
+       Put_Line("Hello world! This is Ada/SPARK support for Emacs org-mode!");
+    end Hello;
 #+END_SRC
 
-#+RESULTS:
-: Hello world! This is Ada/SPARK support for Emacs org-mode!
+* SPARK : formally verified =Increment= function
 
+If you have SPARK installed, try setting the =:prove= header argument of the
+following block code to =t= and =gnatprove=  will verify this code.
 
-
-
-#+BEGIN_SRC ada :version 2012 :unit main :prove t :mode all :level 4 :subprogram Increment
+#+BEGIN_SRC ada :version 2012 :unit main :prove t :mode all :level 4
   with Ada.Text_IO; use Ada.Text_IO;
 
   procedure Main with
@@ -32,93 +32,9 @@
         X := X + 1;
      end Increment;
 
+     My_Integer : Integer := Integer'Last - 1;
   begin
-     Put_Line("Hello, world! Ada/SPARK works now in org-mode!");
+     Increment (My_Integer);
+     Put_Line("Last Integer is" & My_Integer'Image);
   end Main;
 #+END_SRC
-
-#+RESULTS:
-: Phase 1 of 2: generation of Global contracts ...
-: Phase 2 of 2: flow analysis and proof ...
-: main.adb:7:06: info: data dependencies proved
-: main.adb:8:06: info: flow dependencies proved
-: main.adb:10:17: info: postcondition proved
-: main.adb:10:28: info: overflow check proved
-: main.adb:13:14: info: overflow check proved
-: Summary logged in /tmp/babel-NrOdf5/gnatprove/gnatprove.out
-
-* Support for Self-Contained Code
-
-#+BEGIN_SRC ada :ada-version 2022 :assertions nil
-  with Ada.Exceptions;    use Ada.Exceptions;
-  with Ada.Strings;       use Ada.Strings;
-  with Ada.Text_IO;       use Ada.Text_IO;
-  with System.Assertions; use System.Assertions;
-
-  procedure Main is
-     generic
-        type T is private;
-     procedure Swap (X, Y : in out T) with
-        Pre => False,
-        Post => (X = Y'Old and Y = X'Old);
-
-     procedure Swap (X, Y : in out T) is
-        X_Orig : T := X;   --  keep X's original value
-     begin
-        X := Y;
-        Y := X_Orig;
-     end Swap;
-
-     type Word is new String (1 .. 5);
-
-     procedure Swap_Words is new Swap (T => Word);
-
-     Hello : Word := "World";
-     World : Word := "Hello";
-
-  begin
-     Swap_Words (World, Hello);
-     Put_Line (String (Hello) & ", " & String (World));
-  exception
-     when A : Assert_Failure =>
-        Put_Line ("Assert failure: " & Exception_Message (A));
-  end Main;
-#+END_SRC
-
-#+RESULTS:
-: Hello, World
-
-
-#+BEGIN_SRC ada :assertions t
-  with Ada.Exceptions;    use Ada.Exceptions;
-  with Ada.Text_IO;       use Ada.Text_IO;
-  with System.Assertions; use System.Assertions;
-
-  procedure Main is
-
-    procedure Add (Number : Natural; To : in out Natural) with
-      Pre => (Number + To in Natural),
-      Post => (To = To'Old + Number)
-    is
-    begin
-      To := To + Number;
-    end;
-
-    Src, Dst : Natural;
-
-  begin
-    Src := Natural'Last - 1;
-    Dst := 10;
-    Add (Src, Dst);
-    Put_Line ("Result =" & Dst'Image);
-
-  exception
-    when A : Assert_Failure =>
-      Put_Line ("Exception caught");
-    when C : Constraint_Error =>
-      Put_Line ("Constraint Error !!");
-  end Main;
-#+END_SRC
-
-#+RESULTS:
-: Constraint Error !!
