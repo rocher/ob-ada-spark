@@ -87,7 +87,23 @@ language.
 * Babel Features for Ada/SPARK Source Code Blocks
 ** Header Arguments
 *** Custom values
-   - Language-specific default values
+Ada/SPARK support can be customized with the following variables:
+
+  * =org-babel-ada-spark-compile-cmd= ::
+    set the command to invoke the Ada compiler; default value is =gnatmake=
+
+  * =org-babel-ada-spark-version= ::
+    default Ada version passed to the compiler; default value is =2012=; the
+    only compiler supported is =gnatmake=, so this argument will be passed to
+    the compiler as, e.g., =-gnat2012=.
+
+  * =org-babel-ada-spark-compiler-enable-assertions= ::
+    flag to enable Ada assertions; default value is ~-gnata~
+
+  * =org-babel-ada-spark-prove-cmd= ::
+    set the command to invoke the SPARK formal verification tool; default value
+    is =gnatprove=; could be a shell script to invoke =gnatprove= and present
+    the results in a different way
 
 *** Header arguments
 There is one header argument that switches from execution to formal
