@@ -3,7 +3,7 @@
 
 ** Introduction
 =ob-ada-spark.el= file provides support for Ada/SPARK languages in the context
-or Emacs' =org-babel=, part of =org-mode=, to evaluate block codes written in
+of Emacs' =org-babel=, part of =org-mode=, to evaluate block codes written in
 different programming languages.
 
 Ada/SPARK supports compiling and running Ada and SPARK code (=gantmake=), as
@@ -13,8 +13,8 @@ well as proving SPARK programs using formal verification tools provided in SPARK
 This is a very preliminary version.
 
 ** Installation
-Ada/SPARK support is still not part of Emacs. While it cannot be found as part
-of any Emacs distribution, you have to download and load it from this
+Ada/SPARK support is still not part of Emacs. As long as it cannot be found as
+part of some Emacs distribution, you have to download and load it from this
 repository. For now, just load it in Emacs, open an =org= file and enjoy.
 Additional and detailed information will be provided soon.
 
