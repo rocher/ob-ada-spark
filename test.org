@@ -16,7 +16,7 @@
 If you have SPARK installed, try setting the =:prove= header argument of the
 following block code to =t= and =gnatprove=  will verify this code.
 
-#+BEGIN_SRC ada :version 2012 :unit main :prove t :mode all :level 4
+#+BEGIN_SRC ada :version 2020 :unit main :prove t
   with Ada.Text_IO; use Ada.Text_IO;
 
   procedure Main with

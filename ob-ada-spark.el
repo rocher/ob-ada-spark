@@ -40,6 +40,30 @@
 (defvar org-babel-tangle-lang-exts)
 (add-to-list 'org-babel-tangle-lang-exts '("ada" . "adb"))
 
+(defvar org-babel-default-header-args:ada '((:assumptions . nil)
+                                            (:assertions . t)
+                                            (:level . \4)
+                                            (:mode . \all)
+                                            (:pedantic . nil)
+                                            (:prove . nil)
+                                            (:report . all)
+                                            (:unit . nil)
+                                            (:version . nil)
+                                            (:warnings . nil))
+  "Ada/SPARK default header arguments.")
+
+(defconst org-babel-header-args:ada '((assumptions . (nil t))
+                                      (assertions . ((nil t)))
+                                      (level . ((\0 \1 \2 \3 \4)))
+                                      (mode . ((check check_all flow prove all)))
+                                      (pedantic . (nil t))
+                                      (prove . ((nil t)))
+                                      (report . ((fail all provers statistics)))
+                                      (unit . :any)
+                                      (version . ((\83 \95 \2005 \2012 \2022)))
+                                      (warnings . ((off continue error))))
+  "Ada/SPARK specific header arguments.")
+
 (defcustom org-babel-ada-spark-compile-cmd "gnatmake"
   "Command used to compile Ada/SPARK code into an executable.
 May be either a command in the path, like gnatmake, or an
@@ -50,7 +74,7 @@ the :ada-version variable specified in an Ada block."
   :group 'org-babel
   :type 'string)
 
-(defcustom org-babel-ada-spark-prove-cmd "gnatprove --output=pretty --report=all"
+(defcustom org-babel-ada-spark-prove-cmd "gnatprove"
   "Command used to prove SPARK code.
 May be either a command in the path, like gnatprove, or an
 absolute path name, like /opt/ada/bin/gnatprove.
@@ -126,12 +150,26 @@ This function is called by `org-babel-execute-src-block'"
 (defun org-babel-ada-spark-execute (unit temp-src-file processed-params)
   "Execute a block of Ada/SPARK code with org-babel.
 This function is called by `org-babel-execute:ada'"
-  (message "executing Ada/SPARK source code block")
-  (let* ((ada-version (or (cdr (assq :ada-version processed-params)) 0))
-         (unit (cdr (assq :unit processed-params)))
-         (assertions (cdr (assq :assertions processed-params)))
+  (let* ((assertions (cdr (assq :assertions processed-params)))
+         (version-arg (or (cdr (assq :version processed-params)) 0))
+         (version (if (null version-arg) 0
+                    (string-to-number (seq--into-string version-arg))))
          (default-directory org-babel-temporary-directory)
-         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t)))
+         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t))
+         (compile-cmd (format "%s%s%s -o %s %s"
+                              org-babel-ada-spark-compile-cmd
+                              (if (> (+ version org-babel-ada-spark-version) 0)
+                                  (format " -gnat%d"
+                                          (if (> version 0)
+                                              version
+                                            org-babel-ada-spark-version))
+                                "")
+                              (if (null assertions) ""
+                                (concat " " org-babel-ada-spark-compiler-enable-assertions))
+                              temp-bin-file
+                              temp-src-file)))
+    (message "--  executing Ada/SPARK source code block")
+    (message "--  %s" compile-cmd)
     (if (stringp unit)
         (cl-mapcar
          (lambda (ext)
@@ -139,35 +177,35 @@ This function is called by `org-babel-execute:ada'"
                                          (concat unit ext))))
              (when (file-exists-p file) (delete-file file))))
          '("" ".ali" ".o")))
-    (org-babel-eval
-     (format "%s %s %s -o %s %s"
-             org-babel-ada-spark-compile-cmd
-             (if (> (+ ada-version org-babel-ada-spark-version) 0)
-                 (format "-gnat%d"
-                         (if (> ada-version 0)
-                             ada-version
-                           org-babel-ada-spark-version))
-               "")
-             (if (string-equal assertions "t")
-                 org-babel-ada-spark-compiler-enable-assertions
-               "")
-             temp-bin-file
-             temp-src-file) "")
+    (org-babel-eval compile-cmd "")
     (org-babel-eval temp-bin-file "")))
 
 (defun org-babel-ada-spark-prove (unit temp-src-file processed-params)
   "Prove a block of SPARK code with org-babel.
 This function is called by `org-babel-execute:ada'"
-  (message "proving SPARK source code block")
-  (let* ((unit (cdr (assq :unit processed-params)))
-         (assertions (cdr (assq :assertions processed-params)))
-         (mode  (cdr (assq :mode processed-params)))
+  (let* ((assumptions (cdr (assq :assumptions processed-params)))
          (level  (cdr (assq :level processed-params)))
+         (mode  (cdr (assq :mode processed-params)))
+         (pedantic (cdr (assq :pedantic processed-params)))
+         (report (cdr (assq :report processed-params)))
+         (warnings (cdr (assq :warnings processed-params)))
          (default-directory org-babel-temporary-directory)
          (temp-gpr-file
           (org-babel-ada-spark-temp-file "spark_p" ".gpr" unit))
-         ;; create temporary project
-         (temp-project (file-name-base temp-gpr-file)))
+         (temp-project (file-name-base temp-gpr-file))
+         (prove-cmd (format "%s -P%s%s%s%s%s%s%s -u %s"
+                            org-babel-ada-spark-prove-cmd
+                            temp-gpr-file
+                            (if (null assumptions) "" " --assumptions")
+                            (if (null level) "" (format " --level=%s" level))
+                            (if (null mode) "" (format " --mode=%s" mode))
+                            (if (null pedantic) "" " --pedantic")
+                            (if (null report) "" (format " --report=%s" report))
+                            (if (null warnings) "" (format " --warnings=%s" warnings))
+                            temp-src-file)))
+    (message "--  proving SPARK source code block")
+    (message "--  %s" prove-cmd)
+    ;; create temporary project
     (with-temp-file temp-gpr-file
       (insert (format "project %s is
   for Source_Files use (\"%s\");
@@ -186,13 +224,7 @@ end %s;
                 (file-exists-p gnatprove-directory)))
       (delete-directory gnatprove-directory t))
     ;; invoke gnatprove
-    (org-babel-eval
-     (format "%s -P%s %s %s -u %s"
-             org-babel-ada-spark-prove-cmd
-             temp-gpr-file
-             (if (stringp mode) (concat "--mode=" mode) "")
-             (if (stringp level) (concat "--level=" level) "")
-             temp-src-file) "")))
+    (org-babel-eval prove-cmd "")))
 
 (defun org-babel-prep-session:ada-spark (session params)
   "This function does nothing as Ada and SPARK are compiled
