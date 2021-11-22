@@ -105,7 +105,7 @@ The common header arguments for both scenarios are:
 
   * =:unit= ::
     must be a valid Ada unit name or =nil= (default); when set to =nil=, Babel
-    will generate a unit name compatible with =gantmake= and =gprbuild= naming
+    will generate a unit name compatible with =gnatmake= and =gprbuild= naming
     conventions.
 
 **** Arguments for Ada/SPARK evaluation
@@ -141,11 +141,11 @@ The header arguments are:
     must be =nil= (default) or =t=; use a strict interpretation of the Ada
     standard.
 
-  * =report= ::
+  * =:report= ::
     must be =fail=, =all= (default), =provers=, =statistics= or =nil=; set the
-    report mode of =gantprove=.
+    report mode of =gnatprove=.
 
-  * =warnings= ::
+  * =:warnings= ::
     must be =off=, =continue=, =error= or =nil= (default); set the warning mode
     of =gnatprove=.
 
