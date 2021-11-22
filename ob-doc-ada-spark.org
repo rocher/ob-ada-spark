@@ -2,7 +2,7 @@
 #+STARTUP:    align fold nodlcheck hidestars oddeven lognotestate hideblocks
 #+SEQ_TODO:   TODO(t) INPROGRESS(i) WAITING(w@) | DONE(d) CANCELED(c@)
 #+TAGS:       Write(w) Update(u) Fix(f) Check(c) noexport(n)
-#+TITLE:      Ada Source Code Blocks in Babel
+#+TITLE:      Ada/SPARK Source Code Blocks in Babel
 #+AUTHOR:     Francesc Rocher
 #+EMAIL:      francesc.rocher at gmail dot com
 #+LANGUAGE:   en
@@ -24,7 +24,7 @@
   </div>
 #+end_export
 
-* Template Checklist [4/12]                                        :noexport:
+* Template Checklist [12/12]                                       :noexport:
   - [X] Revise #+TITLE:
   - [X] Indicate #+AUTHOR:
   - [X] Add #+EMAIL:
@@ -32,44 +32,141 @@
     - [X] Add link to a useful language web site
     - [X] Replace "Language" with language name
     - [X] Find a suitable graphic and use it to link to the language web site
-  - [ ] Write an [[Introduction]]
-  - [ ] Describe [[Requirements and Setup][Requirements and Setup]]
-  - [ ] Replace "Language" with language name in [[Org Mode Features for Language Source Code Blocks][Babel Features for Language Source Code Blocks]]
-  - [ ] Describe [[Header Arguments][Header Arguments]]
-  - [ ] Describe support for [[Sessions]]
-  - [ ] Describe [[Result Types][Result Types]]
-  - [ ] Describe [[Other]] differences from supported languages
-  - [ ] Provide brief [[Examples of Use][Examples of Use]]
+  - [X] Write an [[Introduction]]
+  - [X] Describe [[Requirements and Setup][Requirements and Setup]]
+  - [X] Replace "Language" with language name in [[Org Mode Features for Language Source Code Blocks][Babel Features for Language Source Code Blocks]]
+  - [X] Describe [[Header Arguments][Header Arguments]]
+  - [X] Describe support for [[Sessions]]
+  - [X] Describe [[Result Types][Result Types]]
+  - [X] Describe [[Other]] differences from supported languages
+  - [X] Provide brief [[Examples of Use][Examples of Use]]
 
 * Introduction
 Ada is a strongly-typed programming language that supports structured,
-object-oriented, distributed and concurrent programming.
+object-oriented, distributed and concurrent programming. Ada is suitable for all
+kind of systems and programming needs, ranging from embedded to large systems.
+Ada is named after [[https://en.wikipedia.org/wiki/Ada_Lovelace][Ada Lovelace]].
 
-  - Range of typical uses within Org Mode.
-   * Teaching Ada
-   * Literate programming with Ada
+SPARK is a programming language based on the Ada programming language. SPARK is
+formally defined and intended for the development of high integrity applications
+used in safety-critical systems.
+
+Ada and SPARK source code blocks can be used to create procedures and functions,
+compile and run them as well as prove correctness of SPARK programs.
+
+For further introductory reading, please visit [[https://en.wikipedia.org/wiki/Ada_(programming_language)][Ada]] and [[https://en.wikipedia.org/wiki/SPARK_(programming_language)][SPARK]] wikipedia pages.
+
+Important: Do not confuse with [[https://spark.apache.org/][Apache SPARK]], which is a completely different
+language.
 
 * Requirements and Setup
-  - Installation and configuration of language software
-  - Emacs configuration
-  - Org-mode configuration (org-babel-do-load-languages)
+  1. You must have a recent Ada compiler available on your computer. To prove
+     SPARK programs, you must have also have SPARK tools installed. Commonly
+     available in most system, and free options, are:
 
-* Babel Features for Language Source Code Blocks
+     * [[https://gcc.gnu.org/][GNAT FSF]] is a free and complete Ada compiler integrated into the GCC (the
+       GNU Compiler Collection)
+     * [[https://www.adacore.com/download][GNAT Community]] from AdaCore includes SPARK support
+     * GNAT FSF + AdaCore SPARK tool set: see how to [[https://github.com/AdaCore/spark2014/blob/master/Makefile][manually compile SPARK]]
+
+     Other compilers can be used as well, but have been not tested. For more
+     information see the list of [[https://en.wikipedia.org/wiki/List_of_compilers#Ada_Compilers][Ada Compilers]].
+
+  2. Although it is not necessary, it is highly recommended to install [[https://www.nongnu.org/ada-mode/][ada-mode]]
+     support for Emacs, which can be obtained from the [[https://elpa.gnu.org/packages/ada-mode.html][GNU Elpa]] package
+     repository.
+
+  3. Make Babel load Ada/SPARK support. Type
+     : M-x customize-variable org-babel-load-languages
+     and add the Ada/SPARK languages.
+
+  * Installation and configuration of language software
+  * Emacs configuration
+  * Org-mode configuration (org-babel-do-load-languages)
+
+* Babel Features for Ada/SPARK Source Code Blocks
 ** Header Arguments
 *** Custom values
    - Language-specific default values
+
 *** Header arguments
-   - Language-specific header arguments
+There is one header argument that switches from execution to formal
+verification: =:prove=. If you set =:prove t=, then the source block will be
+given to =gnatprove= for formal verification of the SPARK code. With any other
+value the source block will be given to =gnatmake= (or to the compiler defined
+in the =org-babel-ada-spark-compile-cmd= custom variable) for Ada/SPARK
+compilation and execution.
+
+The common header arguments for both scenarios are:
+
+  * =:prove= ::
+    must be =nil= (default) or =t=; when set to =t= formal verification is
+    performed, otherwise Ada/SPARK evaluation is performed.
+
+  * =:unit= ::
+    must be a valid Ada unit name or =nil= (default); when set to =nil=, Babel
+    will generate a unit name compatible with =gantmake= and =gprbuild= naming
+    conventions.
+
+**** Arguments for Ada/SPARK evaluation
+These are flags and parameters passed to =gnatmake= (or the Ada compiler);
+
+  * =:assertions= ::
+    must be =nil= or =t= (default); flag to pass to the compiler to enable
+    assertions.
+
+  * =:version= ::
+    can be =83=, =95=, =2005=, =2012=, =2020= or =mil=; specific Ada version to
+    be used with the current source block. Overrides the value of the
+    =org-babel-ada-spark-version= variable.
+
+**** Arguments for SPARK formal verification
+These are flags and parameters passed to =gnatprove=. When set to =nil= no flag
+or argument will be passed to =gnatprove= so the default values will be used.
+
+The header arguments are:
+
+  * =:assumptions:= ::
+    must be =nil= (default) or =t= ; output assumptions information.
+
+  * =:level= ::
+    must be =0=, =1=, =2=, =3=, =4= (default) or =nil=; set the level of proof
+    (=0= = faster, =4= = more powerful).
+
+  * =:mode= ::
+    must be =check=, =check_all=, =flow=, =prove=, =all= (default) or =nil=; set
+    the mode of =gnatprove=.
+
+  * =:pedantic= ::
+    must be =nil= (default) or =t=; use a strict interpretation of the Ada
+    standard.
+
+  * =report= ::
+    must be =fail=, =all= (default), =provers=, =statistics= or =nil=; set the
+    report mode of =gantprove=.
+
+  * =warnings= ::
+    must be =off=, =continue=, =error= or =nil= (default); set the warning mode
+    of =gnatprove=.
+
+See the documentation of =gnatprove= for more information.
+
 ** Sessions
-Ada is a compiled programming language and does not support sessions.
+Ada and SPARK are compiled programming languages, so there is no support for
+sessions.
+
 ** Result Types
-   - Which result types are supported?
+At the moment no result types are supported. Future releases will take care of
+the possibility of handling different types of results.
+
 ** Other
-Ada support for Babel is not so different from other compiled languages, like C
+Ada/SPARK support for Babel is not so different from other compiled languages, like C
 or C++.
 
 * Examples of Use
 ** Hello World
+The hello world example.
+
 #+BEGIN_SRC ada
   with Ada.Text_IO; use Ada.Text_IO;
 
@@ -82,24 +179,45 @@ or C++.
 #+RESULTS:
 : [ result will appear here ]
 
-#+BEGIN_SRC ada
-  with Ada.Text_IO; use Ada.Text_IO;
+** Formal proof
+SPARK tools can analyze the =Increment= function specified below and formally
+prove that the implementation is correct. That is:
 
-  function Hello_World return Integer is
+  * there is no overflow
+  * the function does what is specified in the contracts (=Pre= and =Post=
+    clauses)
+  * the function does not depends on global variables
+  * the result depends exclusively on the input parameter
+
+#+BEGIN_SRC ada :prove t :unit increment
+  function Increment (X : Integer) return Integer with
+    SPARK_Mode  => On,
+    Global => (input => null),
+    Depends => (Increment'Result => X),
+    Pre => X < Integer'Last,
+    Post => (Increment'Result <= Integer'Last) and
+            (Increment'Result = X + 1)
+  is
   begin
-     Put_Line ("Hello, world!");
-     return 0;
-  end Hello_World;
+      return X + 1;
+  end Increment;
 #+END_SRC
 
 #+RESULTS:
 : [ result will appear here ]
-** Common Uses
-*** Common uses of Ada programming language
-   *
 
-** Other resources
+* Other Resources
 **** Online resources
-   * [[blah][Curated list]] of Ada resources
-   * [[https://learn.adacore.com/courses/intro-to-ada/][Introduction to Ada]], interactive course at AdaCore
+  * [[https://github.com/ohenley/awesome-ada][Curated list]] of awesome resources of Ada and SPARK, from Olivier Henley
+  * [[https://alire.ada.dev/][Alire]], Ada Library Repository
+  * [[https://learn.adacore.com/courses/intro-to-ada/][Introduction to Ada]], [[https://learn.adacore.com/courses/intro-to-spark/index.html][Introduction to SPARK]] and other interactive courses at
+    AdaCore
+
 **** Books
+Most recommended books are:
+  * [[https://doi.org/10.1017/CBO9781139696616][Programming in Ada 2012]]
+  * [[https://doi.org/10.1017/CBO9781139629294][Building High Integrity Applications with SPARK]]
+
+See also:
+  * the [[https://github.com/ohenley/awesome-ada#books][book section]] of the awesome Ada page
+  * the [[https://www.adacore.com/books][book section]] of AdaCore
