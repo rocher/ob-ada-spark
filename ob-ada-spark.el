@@ -106,8 +106,9 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
           (const :tag "Ada 2012" 2012)
           (const :tag "Ada 2022" 2022)))
 
-(defconst org-babel-ada-spark-template:proc-main "
-with Ada.Text_IO; use Ada.Text_IO;
+(defconst org-babel-ada-spark-template:proc-main
+  "with Ada.Text_IO; use Ada.Text_IO;
+%s
 procedure Main is
 begin
   %s
@@ -144,9 +145,16 @@ Inspired by the Hello World example.")
 (defun org-babel-expand-body:ada (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body."
   (let* ((template (cdr (assq :template processed-params)))
-         (template-var (concat "org-babel-ada-spark-template:" template)))
+         (template-var (concat "org-babel-ada-spark-template:" template))
+         (with (cdr (assq :with processed-params))))
     (if (boundp (intern template-var))
-        (format (eval (intern template-var)) body)
+        (format (eval (intern template-var))
+                (if (null with)
+                    ""
+                  (mapconcat
+                   (lambda (w) (format "with %s; use %s;\n" w w))
+                   (split-string with)))
+                body)
       body)))
 
 (defun org-babel-execute:ada (body params)
@@ -159,6 +167,7 @@ This function is called by `org-babel-execute-src-block'"
          (unit (cdr (assq :unit processed-params)))
          (temp-src-file
           (org-babel-ada-spark-temp-file "ada-src" ".adb" unit)))
+    ;; (message "--  processed-params: %s" processed-params) ;; debug only
     (with-temp-file temp-src-file (insert full-body))
     (if (string-equal prove "t")
         ;; prove SPARK code
