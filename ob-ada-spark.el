@@ -52,7 +52,8 @@
                                             (:template . nil)
                                             (:unit . nil)
                                             (:version . nil)
-                                            (:warnings . nil))
+                                            (:warnings . nil)
+                                            (:with . nil))
   "Ada/SPARK default header arguments.")
 
 (defconst org-babel-header-args:ada '((assumptions . (nil t))
@@ -65,7 +66,8 @@
                                       (template . :any)
                                       (unit . :any)
                                       (version . ((\83 \95 \2005 \2012 \2022)))
-                                      (warnings . ((off continue error))))
+                                      (warnings . ((off continue error)))
+                                      (with . nil))
   "Ada/SPARK specific header arguments.")
 
 (defcustom org-babel-ada-spark-compile-cmd "gnatmake"
