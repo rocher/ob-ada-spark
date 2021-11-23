@@ -34,7 +34,7 @@
 ;; * Emacs ada-mode, optional but strongly recommended, see
 ;;   <https://www.nongnu.org/ada-mode/>
 
-;;; Version: 0.5.2
+;;; Version: 0.5.3
 
 ;;; Code:
 (require 'ob)
@@ -49,9 +49,11 @@
                                             (:pedantic . nil)
                                             (:prove . nil)
                                             (:report . all)
+                                            (:template . nil)
                                             (:unit . nil)
                                             (:version . nil)
-                                            (:warnings . nil))
+                                            (:warnings . nil)
+                                            (:with . nil))
   "Ada/SPARK default header arguments.")
 
 (defconst org-babel-header-args:ada '((assumptions . (nil t))
@@ -61,9 +63,11 @@
                                       (pedantic . (nil t))
                                       (prove . ((nil t)))
                                       (report . ((fail all provers statistics)))
+                                      (template . :any)
                                       (unit . :any)
                                       (version . ((\83 \95 \2005 \2012 \2022)))
-                                      (warnings . ((off continue error))))
+                                      (warnings . ((off continue error)))
+                                      (with . nil))
   "Ada/SPARK specific header arguments.")
 
 (defcustom org-babel-ada-spark-compile-cmd "gnatmake"
@@ -104,6 +108,17 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
           (const :tag "Ada 2012" 2012)
           (const :tag "Ada 2022" 2022)))
 
+(defconst org-babel-ada-spark-template:proc-main
+  "with Ada.Text_IO; use Ada.Text_IO;
+%s
+procedure Main is
+begin
+  %s
+end Main;
+"
+  "Basic procedure template.
+Inspired by the Hello World example.")
+
 (defvar org-babel-ada-spark-temp-file-counter 0
   "Internal counter to generate sequential Ada/SPARK unit names.")
 
@@ -132,7 +147,18 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
 
 (defun org-babel-expand-body:ada (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body."
-    body)
+  (let* ((template (cdr (assq :template processed-params)))
+         (template-var (concat "org-babel-ada-spark-template:" template))
+         (with (cdr (assq :with processed-params))))
+    (if (boundp (intern template-var))
+        (format (eval (intern template-var))
+                (if (null with)
+                    ""
+                  (mapconcat
+                   (lambda (w) (format "with %s; use %s;\n" w w))
+                   (split-string with)))
+                body)
+      body)))
 
 (defun org-babel-execute:ada (body params)
   "Execute or prove a block of Ada/SPARK code with org-babel.
