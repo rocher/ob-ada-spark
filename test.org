@@ -2,7 +2,6 @@
 
 
 * Ada/SPARK : Hello World Example
-
 #+BEGIN_SRC ada
     with Ada.Text_IO; use Ada.Text_IO;
     procedure Hello is
@@ -12,7 +11,6 @@
 #+END_SRC
 
 * SPARK : formally verified =Increment= function
-
 If you have SPARK installed, try setting the =:prove= header argument of the
 following block code to =t= and =gnatprove=  will verify this code.
 
@@ -37,4 +35,41 @@ following block code to =t= and =gnatprove=  will verify this code.
      Increment (My_Integer);
      Put_Line("Last Integer is" & My_Integer'Image);
   end Main;
+#+END_SRC
+
+* Template Support
+** Basic support
+With templates there is no need to write the full procedure, only the body. The
+template is a wrapper for the procedure body, like this:
+
+#+BEGIN_SRC ada :template proc-main
+  Put_Line ("Hello, world --now with templates!");
+#+END_SRC
+
+** With-ing packages
+Templates support =with= header parameters. For example, the header argument
+#+BEGIN_EXAMPLE
+  :with Ada.Text_IO Ada.Exceptions;
+#+END_EXAMPLE
+
+will be expanded to following the source code in the /with section/ of the
+template:
+#+begin_src ada
+  with Ada.Text_IO; use Ada.Text_IO;
+  with Ada.Exceptions; use Ada.Exceptions;
+#+end_src
+
+*** Template 'proc-main'
+The template ~proc-main~ already includes the module =Ada.Text_IO=, so there is
+no need to write it. For example:
+#+BEGIN_SRC ada :template proc-main
+  declare
+    X : Positive := 100;
+  begin
+    X := Positive'Last + X;
+    Put_Line ("X =" & X'Image);
+  exception
+    when C : Constraint_Error =>
+      Put_Line ("Exception caught");
+  end;
 #+END_SRC
