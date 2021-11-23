@@ -34,7 +34,7 @@
 ;; * Emacs ada-mode, optional but strongly recommended, see
 ;;   <https://www.nongnu.org/ada-mode/>
 
-;;; Version: 0.5.1
+;;; Version: 0.5.2
 
 ;;; Code:
 (require 'ob)
@@ -107,7 +107,7 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
 (defvar org-babel-ada-spark-temp-file-counter 0
   "Internal counter to generate sequential Ada/SPARK unit names.")
 
-(defun org-babel-ada-spark-temp-file (prefix suffix &optional unit no-suffix)
+(defun org-babel-ada-spark-temp-file (prefix suffix &optional unit no-suffix no-inc)
   "Create a temporary file with a name compatible with Ada/SPARK."
   (let* ((temp-file-directory
           (if (file-remote-p default-directory)
@@ -122,8 +122,9 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
               (if no-suffix unit (concat unit suffix))
             (format "%s%06d%s"
                     prefix
-                    (setq org-babel-ada-spark-temp-file-counter
-                          (1+ org-babel-ada-spark-temp-file-counter))
+                    (if no-inc org-babel-ada-spark-temp-file-counter
+                      (setq org-babel-ada-spark-temp-file-counter
+                       (1+ org-babel-ada-spark-temp-file-counter)))
                     suffix)))
          (file-name (file-name-concat temp-file-directory temp-file-name)))
     (f-touch (file-name-concat temp-file-directory temp-file-name))
@@ -143,6 +144,7 @@ This function is called by `org-babel-execute-src-block'"
          (unit (cdr (assq :unit processed-params)))
          (temp-src-file
           (org-babel-ada-spark-temp-file "ada-src" ".adb" unit)))
+    ;; (message "--  processed-params: %s" processed-params) ;; debug only
     (with-temp-file temp-src-file (insert full-body))
     (if (string-equal prove "t")
         ;; prove SPARK code
@@ -155,7 +157,7 @@ This function is called by `org-babel-execute:ada'"
   (let* ((assertions (cdr (assq :assertions processed-params)))
          (version (or (cdr (assq :version processed-params)) 0))
          (default-directory org-babel-temporary-directory)
-         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t))
+         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t t))
          (compile-cmd (format "%s%s%s -o %s %s"
                               org-babel-ada-spark-compile-cmd
                               (if (> (+ version org-babel-ada-spark-version) 0)
