@@ -34,6 +34,8 @@
 ;; * Emacs ada-mode, optional but strongly recommended, see
 ;;   <https://www.nongnu.org/ada-mode/>
 
+;;; Version: 0.5.1
+
 ;;; Code:
 (require 'ob)
 
