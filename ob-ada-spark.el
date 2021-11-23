@@ -49,6 +49,7 @@
                                             (:pedantic . nil)
                                             (:prove . nil)
                                             (:report . all)
+                                            (:template . nil)
                                             (:unit . nil)
                                             (:version . nil)
                                             (:warnings . nil))
@@ -61,6 +62,7 @@
                                       (pedantic . (nil t))
                                       (prove . ((nil t)))
                                       (report . ((fail all provers statistics)))
+                                      (template . :any)
                                       (unit . :any)
                                       (version . ((\83 \95 \2005 \2012 \2022)))
                                       (warnings . ((off continue error))))
@@ -104,6 +106,16 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
           (const :tag "Ada 2012" 2012)
           (const :tag "Ada 2022" 2022)))
 
+(defconst org-babel-ada-spark-template:proc-main "
+with Ada.Text_IO; use Ada.Text_IO;
+procedure Main is
+begin
+  %s
+end Main;
+"
+  "Basic procedure template.
+Inspired by the Hello World example.")
+
 (defvar org-babel-ada-spark-temp-file-counter 0
   "Internal counter to generate sequential Ada/SPARK unit names.")
 
@@ -131,7 +143,11 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
 
 (defun org-babel-expand-body:ada (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body."
-    body)
+  (let* ((template (cdr (assq :template processed-params)))
+         (template-var (concat "org-babel-ada-spark-template:" template)))
+    (if (boundp (intern template-var))
+        (format (eval (intern template-var)) body)
+      body)))
 
 (defun org-babel-execute:ada (body params)
   "Execute or prove a block of Ada/SPARK code with org-babel.
