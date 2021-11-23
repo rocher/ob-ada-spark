@@ -54,10 +54,10 @@ Templates support =with= header parameters. For example, the header argument
 
 will be expanded to following the source code in the /with section/ of the
 template:
-#+begin_src ada
+#+BEGIN_SRC ada
   with Ada.Text_IO; use Ada.Text_IO;
   with Ada.Exceptions; use Ada.Exceptions;
-#+end_src
+#+END_SRC
 
 *** Template 'proc-main'
 The template ~proc-main~ already includes the module =Ada.Text_IO=, so there is
