@@ -151,9 +151,7 @@ This function is called by `org-babel-execute-src-block'"
   "Execute a block of Ada/SPARK code with org-babel.
 This function is called by `org-babel-execute:ada'"
   (let* ((assertions (cdr (assq :assertions processed-params)))
-         (version-arg (or (cdr (assq :version processed-params)) 0))
-         (version (if (null version-arg) 0
-                    (string-to-number (seq--into-string version-arg))))
+         (version (or (cdr (assq :version processed-params)) 0))
          (default-directory org-babel-temporary-directory)
          (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t))
          (compile-cmd (format "%s%s%s -o %s %s"
