@@ -34,7 +34,7 @@
 ;; * Emacs ada-mode, optional but strongly recommended, see
 ;;   <https://www.nongnu.org/ada-mode/>
 
-;;; Version: 0.5.3
+;;; Version: 0.6.0
 
 ;;; Code:
 (require 'ob)
@@ -108,6 +108,23 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
           (const :tag "Ada 2012" 2012)
           (const :tag "Ada 2022" 2022)))
 
+(defcustom org-babel-ada-spark-skel-initial-string #'(lambda () (format "-----------------------------------------------------------------------------
+--
+--  Source code generated automatically by 'org-babel-tangle' from
+--  file %s
+--  %s
+--
+--  DO NOT EDIT!!
+--
+-----------------------------------------------------------------------------
+
+"
+                                                                        (buffer-file-name (current-buffer))
+                                                                        (time-stamp-string "%Y-%02m-%02d %02H:%02M:%02S")))
+  "Header written in files generated with `org-babel-tangle'."
+  :group 'babel
+  :type 'function)
+
 (defconst org-babel-ada-spark-template:proc-main
   "with Ada.Text_IO; use Ada.Text_IO;
 %s
@@ -149,7 +166,15 @@ Inspired by the Hello World example.")
   "Expand BODY according to PARAMS, return the expanded body."
   (let* ((template (cdr (assq :template processed-params)))
          (template-var (concat "org-babel-ada-spark-template:" template))
+         (vars (org-babel--get-vars params))
          (with (cdr (assq :with processed-params))))
+    (if (not (null vars))
+        (mapc
+         (lambda (var)
+           (let ((key (car var))
+                 (val (cdr var)))
+             (setq body (string-replace (format "%s" key) (format "%s" val) body))))
+         vars))
     (if (boundp (intern template-var))
         (format (eval (intern template-var))
                 (if (null with)
@@ -263,6 +288,23 @@ languages with no support for sessions."
   "If the results look like a table, then convert them into an
 Emacs-lisp table, otherwise return the results as a string."
   results)
+
+(defun org-babel-ada-spark-pre-tangle-hook ()
+  "This function is called just before `org-babel-tangle'.
+When using tangle to export Ada/SPARK code to a file, this
+function is used to set the header of the file according to the value of the variable
+`org-babel-ada-spark-skel-initial-string'."
+  (setq org-babel-ada-spark--ada-skel-initial-string--backup ada-skel-initial-string)
+  (setq ada-skel-initial-string (funcall org-babel-ada-spark-skel-initial-string)))
+
+(defun org-babel-ada-spark-post-tangle-hook ()
+  "This function is called just after `org-babel-tangle'.
+Once the file has been generated, this function restores the
+value of the header inserted into Ada/SPARK buffers."
+  (setq ada-skel-initial-string org-babel-ada-spark--ada-skel-initial-string--backup))
+
+(add-hook 'org-babel-pre-tangle-hook #'org-babel-ada-spark-pre-tangle-hook)
+(add-hook 'org-babel-post-tangle-hook #'org-babel-ada-spark-post-tangle-hook)
 
 (provide 'ob-ada-spark)
 
