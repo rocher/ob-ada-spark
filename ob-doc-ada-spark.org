@@ -85,8 +85,7 @@ language.
   * Org-mode configuration (org-babel-do-load-languages)
 
 * Babel Features for Ada/SPARK Source Code Blocks
-** Header Arguments
-*** Custom values
+** Custom Variables
 Ada/SPARK support can be customized with the following variables:
 
   * =org-babel-ada-spark-compile-cmd= ::
@@ -105,7 +104,11 @@ Ada/SPARK support can be customized with the following variables:
     is =gnatprove=; could be a shell script to invoke =gnatprove= and present
     the results in a different way
 
-*** Header arguments
+  * =org-babel-ada-spark-skel-initial-string= ::
+    this is the header inserted in files generated with ~org-babel-tangle~; it
+    does not interfere with the default header inserted by =ada-mode=.
+
+** Header Arguments
 There is one header argument that switches from execution to formal
 verification: =:prove=. If you set =:prove t=, then the source block will be
 given to =gnatprove= for formal verification of the SPARK code. With any other
@@ -124,19 +127,28 @@ The common header arguments for both scenarios are:
     will generate a unit name compatible with =gnatmake= and =gprbuild= naming
     conventions.
 
-**** Arguments for Ada/SPARK evaluation
+*** Arguments for Ada/SPARK evaluation
 These are flags and parameters passed to =gnatmake= (or the Ada compiler);
 
   * =:assertions= ::
     must be =nil= or =t= (default); flag to pass to the compiler to enable
     assertions.
 
+  * =template= :: <<template>>
+    name of the template to be used in case you want to evaluate a partial
+    Ada/SPARK program; for example, the most basic use is =:template proc-main=
+    to wrap your code inside a =Main= procedure using the =Ada.Text_IO= package.
+
   * =:version= ::
     can be =83=, =95=, =2005=, =2012=, =2020= or =mil=; specific Ada version to
     be used with the current source block. Overrides the value of the
     =org-babel-ada-spark-version= variable.
 
-**** Arguments for SPARK formal verification
+  * =:with= ::
+    list of packages; each one will be replaced by =with PACKAGE; use PACKAGE=
+    in the preamble of the [[template]].
+
+*** Arguments for SPARK formal verification
 These are flags and parameters passed to =gnatprove=. When set to =nil= no flag
 or argument will be passed to =gnatprove= so the default values will be used.
 
@@ -167,6 +179,66 @@ The header arguments are:
 
 See the documentation of =gnatprove= for more information.
 
+*** Arguments for literate programming
+Org Babel has the =var= header argument to pass values to source code blocks.
+For example, in =C= you can write =:var i=1= and then use =i= inside the source
+code block. Internally, this parameter also /declares/ the variable =i= as an
+=int=. This mechanism is also implemented for other programming languages
+supported in Babel.
+
+Because Ada and SPARK are strongly typed programming languages, it has no sense
+to use this =:var= argument to introduce /shadowed/ declarations. It's
+preferable to let programmers choose the appropriate type of a variable assigned
+to 1: =Integer=, =Natural= or =Positive=. So, we decided that it's better to not
+to implement this mechanism in Ada/SPARK.
+
+Instead, we can take advantage of the =:var= header argument to perform /literal
+substitutions/. That is, to replace the indicated variables with the value
+assigned to it. For example, in the case that a source code block wants to open
+a file in the same directory than the orgmode file, the compiled code is
+executed from a different directory, so a path is required. The path depends on
+the current working directory of the orgmode file, which can be different for
+virtually each user.
+
+The solution is then to provide a =__Path__= literate substitution with the
+following ~ELisp~ form:
+
+#+begin_example
+
+#+header: :var __Path__=(file-name-directory (buffer-file-name (current-buffer)))
+#+begin_src ada
+
+  --  open "input" file in the current working directory
+  Open (Input, In_File, "__Path__" & "input");
+  while not End_Of_File (Input) loop
+     Get_Line (Input, Text, Last_Pos);
+     Put_Line (Text (1 .. 3));
+  end loop;
+  Close (Input);
+
+#+end_src
+
+#+end_example
+
+To used =:var= argument in the same way as it is implemented in other
+programming languages, first provide the type:
+
+#+begin_example
+
+#+begin_src ada :var __Baud_Rate__=115_200, __Parity__=none
+
+  subtype Baud_Rate_Type is Natural with
+     Static_Predicate => Baud_Rate_Type in 300 | 1_200 | 2_400 | 4_800 | 9_600 |
+                                   19_200 | 38_400 | 57_600 | 115_200 | 230_400;
+  type Parity_Type is (even, odd, none);
+
+  Baud_Rate : Baud_Rate_Type := __Baud_Rate__;
+  Parity    : Parity_Type    := __Parity__;
+
+#+end_src
+
+#+end_example
+
 ** Sessions
 Ada and SPARK are compiled programming languages, so there is no support for
 sessions.
@@ -184,16 +256,31 @@ or C++.
 The hello world example.
 
 #+BEGIN_SRC ada
+
   with Ada.Text_IO; use Ada.Text_IO;
 
   procedure Hello_World is
   begin
      Put_Line ("Hello, world!");
   end Hello_World;
+
 #+END_SRC
 
 #+RESULTS:
 : [ result will appear here ]
+
+** Hello World using templates and variables
+#+begin_example
+#+header: :var __String__="Hello, world!"
+#+end_example
+#+BEGIN_SRC ada :template proc-main :var __String__="Hello, world!"
+
+  Put_Line ("__String__");
+
+#+END_SRC
+
+#+RESULTS:
+: Hello, world!
 
 ** Formal proof
 SPARK tools can analyze the =Increment= function specified below and formally
@@ -206,6 +293,7 @@ prove that the implementation is correct. That is:
   * the result depends exclusively on the input parameter
 
 #+BEGIN_SRC ada :prove t :unit increment
+
   function Increment (X : Integer) return Integer with
     SPARK_Mode  => On,
     Global => (input => null),
@@ -217,6 +305,7 @@ prove that the implementation is correct. That is:
   begin
       return X + 1;
   end Increment;
+
 #+END_SRC
 
 #+RESULTS:
