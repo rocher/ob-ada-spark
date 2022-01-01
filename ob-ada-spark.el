@@ -1,12 +1,12 @@
 ;;; ob-ada-spark.el --- Babel functions for Ada & SPARK
 
-;; Copyright (C) 2021 Francesc Rocher
+;; Copyright (C) 2021-2022 Francesc Rocher
 
 ;; Author: Francesc Rocher
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: https://orgmode.org
 
-;; This file is NOT YET part of GNU Emacs.
+;; This file is not part of GNU Emacs.
 
 ;; ob-ada-spark is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -25,7 +25,8 @@
 
 ;; Org-Babel support for evaluating Ada & SPARK code and proving SPARK code.
 ;;
-;; Very limited implementation.
+;;   - Initial implementation
+;;   - For more information see <https://github.com/rocher/ob-ada-spark/>
 
 ;;; Requirements:
 
