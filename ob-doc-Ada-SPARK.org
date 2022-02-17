@@ -267,7 +267,7 @@ The hello world example.
 #+END_SRC
 
 #+RESULTS:
-: Hello, world!
+: [ result will appear here ]
 
 ** Hello World using templates and variables
 #+begin_example
@@ -280,7 +280,7 @@ The hello world example.
 #+END_SRC
 
 #+RESULTS:
-: Hello, world!
+: [ result will appear here ]
 
 ** Formal proof
 SPARK tools can analyze the =Increment= function specified below and formally
@@ -309,14 +309,7 @@ prove that the implementation is correct. That is:
 #+END_SRC
 
 #+RESULTS:
-: Phase 1 of 2: generation of Global contracts ...
-: Phase 2 of 2: flow analysis and proof ...
-: increment.adb:4:03: info: data dependencies proved
-: increment.adb:5:03: info: flow dependencies proved
-: increment.adb:7:11: info: postcondition proved
-: increment.adb:8:33: info: overflow check proved
-: increment.adb:11:14: info: overflow check proved
-: Summary logged in /tmp/babel-hFH5TI/gnatprove/gnatprove.out
+: [ result will appear here ]
 
 * Other Resources
 ** Online resources
