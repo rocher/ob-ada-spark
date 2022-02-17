@@ -5,7 +5,7 @@
 ;; Author: Francesc Rocher
 ;; Keywords: Ada/SPARK, literate programming, reproducible research
 ;; Homepage: https://github.com/rocher/ob-ada-spark
-;; Version: 1.0.0
+;; Version: 1.0.1
 
 ;; This file is NOT part of GNU Emacs.
 
