@@ -180,25 +180,25 @@ The header arguments are:
 See the documentation of =gnatprove= for more information.
 
 *** Arguments for literate programming
-Org Babel has the =var= header argument to pass values to source code blocks.
-For example, in =C= you can write =:var i=1= and then use =i= inside the source
-code block. Internally, this parameter also /declares/ the variable =i= as an
-=int=. This mechanism is also implemented for other programming languages
+Org Babel provides the =var= header argument to pass values to source code
+blocks. For example, in =C= you can write =:var i=1= and then use =i= inside the
+source code block. Internally, this parameter also /declares/ the variable =i=
+as an =int=. This mechanism is also implemented for other programming languages
 supported in Babel.
 
 Because Ada and SPARK are strongly typed programming languages, it has no sense
 to use this =:var= argument to introduce /shadowed/ declarations. It's
-preferable to let programmers choose the appropriate type of a variable assigned
-to 1: =Integer=, =Natural= or =Positive=. So, we decided that it's better to not
-to implement this mechanism in Ada/SPARK.
+preferable to let programmers choose the appropriate type of a variable:
+=Integer=, =Natural= or =Positive=. So we decided that it's better to not to
+implement this mechanism in Ada/SPARK.
 
 Instead, we can take advantage of the =:var= header argument to perform /literal
-substitutions/. That is, to replace the indicated variables with the value
-assigned to it. For example, in the case that a source code block wants to open
-a file in the same directory than the orgmode file, the compiled code is
-executed from a different directory, so a path is required. The path depends on
-the current working directory of the orgmode file, which can be different for
-virtually each user.
+substitutions/ of the indicated variables with the result from evaluating
+them. For example, suppose that a source code block wants to open a file in the
+same directory than the orgmode file. The compiled code is executed from a
+temporary directory managed by Babel. That mean that a path is required in the
+file name. This path depends on the current working directory of the orgmode
+file, which can be different for virtually each user.
 
 The solution is then to provide a =__Path__= literate substitution with the
 following ~ELisp~ form:
@@ -220,8 +220,8 @@ following ~ELisp~ form:
 
 #+end_example
 
-To used =:var= argument in the same way as it is implemented in other
-programming languages, first provide the type:
+To use =:var= argument in the same way as it is implemented in other programming
+languages, first provide the type:
 
 #+begin_example
 
@@ -280,7 +280,7 @@ The hello world example.
 #+END_SRC
 
 #+RESULTS:
-: Hello, world!
+: [ result will appear here ]
 
 ** Formal proof
 SPARK tools can analyze the =Increment= function specified below and formally
@@ -312,13 +312,13 @@ prove that the implementation is correct. That is:
 : [ result will appear here ]
 
 * Other Resources
-**** Online resources
+** Online resources
   * [[https://github.com/ohenley/awesome-ada][Curated list]] of awesome resources of Ada and SPARK, from Olivier Henley
   * [[https://alire.ada.dev/][Alire]], Ada Library Repository
   * [[https://learn.adacore.com/courses/intro-to-ada/][Introduction to Ada]], [[https://learn.adacore.com/courses/intro-to-spark/index.html][Introduction to SPARK]] and other interactive courses at
     AdaCore
 
-**** Books
+** Books
 Most recommended books are:
   * [[https://doi.org/10.1017/CBO9781139696616][Programming in Ada 2012]]
   * [[https://doi.org/10.1017/CBO9781139629294][Building High Integrity Applications with SPARK]]
