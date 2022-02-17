@@ -25,7 +25,7 @@
 
 ;; Org-Babel support for evaluating Ada & SPARK code and proving SPARK code.
 ;;
-;;   - Initial implementation
+;;   - Initial implementation + First official release
 ;;   - For more information see <https://github.com/rocher/ob-ada-spark/>
 
 ;;; Requirements:
@@ -35,7 +35,7 @@
 ;; * Emacs ada-mode, optional but strongly recommended, see
 ;;   <https://www.nongnu.org/ada-mode/>
 
-;;; Version: 0.6.0
+;;; Version: 1.0.0
 
 ;;; Code:
 (require 'ob)
