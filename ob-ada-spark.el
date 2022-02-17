@@ -3,10 +3,11 @@
 ;; Copyright (C) 2021-2022 Francesc Rocher
 
 ;; Author: Francesc Rocher
-;; Keywords: literate programming, reproducible research
-;; Homepage: https://orgmode.org
+;; Keywords: Ada/SPARK, literate programming, reproducible research
+;; Homepage: https://github.com/rocher/ob-ada-spark
+;; Version: 1.0.0
 
-;; This file is not part of GNU Emacs.
+;; This file is NOT part of GNU Emacs.
 
 ;; ob-ada-spark is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,8 +35,6 @@
 ;; * A SPARK formal verification tool (gnatprove)
 ;; * Emacs ada-mode, optional but strongly recommended, see
 ;;   <https://www.nongnu.org/ada-mode/>
-
-;;; Version: 1.0.0
 
 ;;; Code:
 (require 'ob)
