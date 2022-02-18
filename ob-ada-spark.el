@@ -5,7 +5,7 @@
 ;; Author: Francesc Rocher
 ;; Keywords: Ada/SPARK, literate programming, reproducible research
 ;; Homepage: https://github.com/rocher/ob-ada-spark
-;; Version: 1.0.1
+;; Version: 1.1.0
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -139,8 +139,18 @@ Inspired by the Hello World example.")
 (defvar org-babel-ada-spark-temp-file-counter 0
   "Internal counter to generate sequential Ada/SPARK unit names.")
 
-(defun org-babel-ada-spark-temp-file (prefix suffix &optional unit no-suffix no-inc)
-  "Create a temporary file with a name compatible with Ada/SPARK."
+(defun org-babel-ada-spark-temp-file (prefix suffix &optional unit no-inc)
+  "Create a temporary file with a name compatible with Ada/SPARK.
+Creates a temporary filename starting with PREFIX, followed by a
+number or an Ada unit name, and endded in SUFFIX.
+
+Optional argument UNIT is a string containing the name of an Ada
+unit. If it is not specified, then the filename is composed with
+the file counter `org-babel-ada-spark-temp-file-counter'.
+
+When argument NO-INC is t, then the file counter is not
+incremented, thus allowing the creation of several temporary
+files for different units with the same numbering."
   (let* ((temp-file-directory
           (if (file-remote-p default-directory)
               (concat (file-remote-p default-directory)
@@ -151,7 +161,7 @@ Inspired by the Hello World example.")
                 temporary-file-directory)))
          (temp-file-name
           (if (stringp unit)
-              (if no-suffix unit (concat unit suffix))
+              (concat unit suffix)
             (format "%s%06d%s"
                     prefix
                     (if no-inc org-babel-ada-spark-temp-file-counter
@@ -163,7 +173,10 @@ Inspired by the Hello World example.")
     file-name))
 
 (defun org-babel-expand-body:ada (body params &optional processed-params)
-  "Expand BODY according to PARAMS, return the expanded body."
+  "Expand BODY according to PARAMS, return the expanded body.
+PROCESSED-PARAMS is the list of source code block parameters with
+expanded variables, as returned by the function
+`org-babel-process-params'."
   (let* ((template (cdr (assq :template processed-params)))
          (template-var (concat "org-babel-ada-spark-template:" template))
          (vars (org-babel--get-vars params))
@@ -181,12 +194,16 @@ Inspired by the Hello World example.")
                     ""
                   (mapconcat
                    (lambda (w) (format "with %s; use %s;\n" w w))
-                   (split-string with)))
+                   (split-string with)
+                   ""))
                 body)
       body)))
 
 (defun org-babel-execute:ada (body params)
   "Execute or prove a block of Ada/SPARK code with org-babel.
+BODY contains the Ada/SPARK source code to evaluate. PARAMS is
+the list of source code block parameters.
+
 This function is called by `org-babel-execute-src-block'"
   (let* ((processed-params (org-babel-process-params params))
          (full-body (org-babel-expand-body:ada
@@ -204,11 +221,16 @@ This function is called by `org-babel-execute-src-block'"
 
 (defun org-babel-ada-spark-execute (unit temp-src-file processed-params)
   "Execute a block of Ada/SPARK code with org-babel.
+UNIT is the name of the Ada/SPARK unit. TEMP-SRC-FILE is the name
+of the source file. PROCESSED-PARAMS is the list of source code
+block parameters with expanded variables, as returned by the
+function `org-babel-process-params'.
+
 This function is called by `org-babel-execute:ada'"
   (let* ((assertions (cdr (assq :assertions processed-params)))
          (version (or (cdr (assq :version processed-params)) 0))
          (default-directory org-babel-temporary-directory)
-         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t t))
+         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t))
          (compile-cmd (format "%s%s%s -o %s %s"
                               org-babel-ada-spark-compile-cmd
                               (if (> (+ version org-babel-ada-spark-version) 0)
@@ -235,6 +257,11 @@ This function is called by `org-babel-execute:ada'"
 
 (defun org-babel-ada-spark-prove (unit temp-src-file processed-params)
   "Prove a block of SPARK code with org-babel.
+UNIT is the name of the Ada/SPARK unit. TEMP-SRC-FILE is the name
+of the temporary file. PROCESSED-PARAMS is the list of source
+code block parameters with expanded variables, as returned by the
+function `org-babel-process-params'.
+
 This function is called by `org-babel-execute:ada'"
   (let* ((assumptions (cdr (assq :assumptions processed-params)))
          (level  (cdr (assq :level processed-params)))
@@ -280,28 +307,34 @@ end %s;
     (org-babel-eval prove-cmd "")))
 
 (defun org-babel-prep-session:ada-spark (session params)
-  "This function does nothing as Ada and SPARK are compiled
-languages with no support for sessions."
+  "This function does nothing.
+Ada and SPARK are compiled languages with no support for
+sessions. SESSION and PARAMS are not support."
   (error "Ada & SPARK are compiled languages -- no support for sessions"))
 
 (defun org-babel-ada-spark-table-or-string (results)
-  "If the results look like a table, then convert them into an
-Emacs-lisp table, otherwise return the results as a string."
+  "Convert RESULTS into an Emacs-list table, if it is a table."
   results)
+
+(defvar org-babel-ada-spark--ada-skel-initial-string--backup "")
 
 (defun org-babel-ada-spark-pre-tangle-hook ()
   "This function is called just before `org-babel-tangle'.
 When using tangle to export Ada/SPARK code to a file, this
-function is used to set the header of the file according to the value of the variable
-`org-babel-ada-spark-skel-initial-string'."
-  (setq org-babel-ada-spark--ada-skel-initial-string--backup ada-skel-initial-string)
-  (setq ada-skel-initial-string (funcall org-babel-ada-spark-skel-initial-string)))
+function is used to set the header of the file according to the
+value of the variable `org-babel-ada-spark-skel-initial-string'."
+  (if (boundp ada-skel-initial-string)
+      (progn (setq org-babel-ada-spark--ada-skel-initial-string--backup ada-skel-initial-string)
+             (setq ada-skel-initial-string (funcall org-babel-ada-spark-skel-initial-string)))))
+
+
 
 (defun org-babel-ada-spark-post-tangle-hook ()
   "This function is called just after `org-babel-tangle'.
 Once the file has been generated, this function restores the
 value of the header inserted into Ada/SPARK buffers."
-  (setq ada-skel-initial-string org-babel-ada-spark--ada-skel-initial-string--backup))
+  (if (boundp ada-skel-initial-string)
+      (setq ada-skel-initial-string org-babel-ada-spark--ada-skel-initial-string--backup)))
 
 (add-hook 'org-babel-pre-tangle-hook #'org-babel-ada-spark-pre-tangle-hook)
 (add-hook 'org-babel-post-tangle-hook #'org-babel-ada-spark-post-tangle-hook)
