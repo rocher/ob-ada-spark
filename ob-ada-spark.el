@@ -181,7 +181,8 @@ Inspired by the Hello World example.")
                     ""
                   (mapconcat
                    (lambda (w) (format "with %s; use %s;\n" w w))
-                   (split-string with)))
+                   (split-string with)
+                   ""))
                 body)
       body)))
 
