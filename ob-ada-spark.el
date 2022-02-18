@@ -140,7 +140,17 @@ Inspired by the Hello World example.")
   "Internal counter to generate sequential Ada/SPARK unit names.")
 
 (defun org-babel-ada-spark-temp-file (prefix suffix &optional unit no-inc)
-  "Create a temporary file with a name compatible with Ada/SPARK."
+  "Create a temporary file with a name compatible with Ada/SPARK.
+Creates a temporary filename starting with PREFIX, followed by a
+number or an Ada unit name, and endded in SUFFIX.
+
+Optional argument UNIT is a string containing the name of an Ada
+unit. If it is not specified, then the filename is composed with
+the file counter `org-babel-ada-spark-temp-file-counter'.
+
+When argument NO-INC is t, then the file counter is not
+incremented, thus allowing the creation of several temporary
+files for different units with the same numbering."
   (let* ((temp-file-directory
           (if (file-remote-p default-directory)
               (concat (file-remote-p default-directory)
@@ -163,7 +173,10 @@ Inspired by the Hello World example.")
     file-name))
 
 (defun org-babel-expand-body:ada (body params &optional processed-params)
-  "Expand BODY according to PARAMS, return the expanded body."
+  "Expand BODY according to PARAMS, return the expanded body.
+PROCESSED-PARAMS is the list of source code block parameters with
+expanded variables, as returned by the function
+`org-babel-process-params'."
   (let* ((template (cdr (assq :template processed-params)))
          (template-var (concat "org-babel-ada-spark-template:" template))
          (vars (org-babel--get-vars params))
@@ -188,6 +201,9 @@ Inspired by the Hello World example.")
 
 (defun org-babel-execute:ada (body params)
   "Execute or prove a block of Ada/SPARK code with org-babel.
+BODY contains the Ada/SPARK source code to evaluate. PARAMS is
+the list of source code block parameters.
+
 This function is called by `org-babel-execute-src-block'"
   (let* ((processed-params (org-babel-process-params params))
          (full-body (org-babel-expand-body:ada
@@ -205,6 +221,11 @@ This function is called by `org-babel-execute-src-block'"
 
 (defun org-babel-ada-spark-execute (unit temp-src-file processed-params)
   "Execute a block of Ada/SPARK code with org-babel.
+UNIT is the name of the Ada/SPARK unit. TEMP-SRC-FILE is the name
+of the source file. PROCESSED-PARAMS is the list of source code
+block parameters with expanded variables, as returned by the
+function `org-babel-process-params'.
+
 This function is called by `org-babel-execute:ada'"
   (let* ((assertions (cdr (assq :assertions processed-params)))
          (version (or (cdr (assq :version processed-params)) 0))
@@ -236,6 +257,11 @@ This function is called by `org-babel-execute:ada'"
 
 (defun org-babel-ada-spark-prove (unit temp-src-file processed-params)
   "Prove a block of SPARK code with org-babel.
+UNIT is the name of the Ada/SPARK unit. TEMP-SRC-FILE is the name
+of the temporary file. PROCESSED-PARAMS is the list of source
+code block parameters with expanded variables, as returned by the
+function `org-babel-process-params'.
+
 This function is called by `org-babel-execute:ada'"
   (let* ((assumptions (cdr (assq :assumptions processed-params)))
          (level  (cdr (assq :level processed-params)))
@@ -281,13 +307,13 @@ end %s;
     (org-babel-eval prove-cmd "")))
 
 (defun org-babel-prep-session:ada-spark (session params)
-  "This function does nothing as Ada and SPARK are compiled
-languages with no support for sessions."
+  "This function does nothing.
+Ada and SPARK are compiled languages with no support for
+sessions. SESSION and PARAMS are not support."
   (error "Ada & SPARK are compiled languages -- no support for sessions"))
 
 (defun org-babel-ada-spark-table-or-string (results)
-  "If the results look like a table, then convert them into an
-Emacs-lisp table, otherwise return the results as a string."
+  "Convert RESULTS into an Emacs-list table, if it is a table."
   results)
 
 (defvar org-babel-ada-spark--ada-skel-initial-string--backup "")
