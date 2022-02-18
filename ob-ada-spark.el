@@ -139,7 +139,7 @@ Inspired by the Hello World example.")
 (defvar org-babel-ada-spark-temp-file-counter 0
   "Internal counter to generate sequential Ada/SPARK unit names.")
 
-(defun org-babel-ada-spark-temp-file (prefix suffix &optional unit no-suffix no-inc)
+(defun org-babel-ada-spark-temp-file (prefix suffix &optional unit no-inc)
   "Create a temporary file with a name compatible with Ada/SPARK."
   (let* ((temp-file-directory
           (if (file-remote-p default-directory)
@@ -151,7 +151,7 @@ Inspired by the Hello World example.")
                 temporary-file-directory)))
          (temp-file-name
           (if (stringp unit)
-              (if no-suffix unit (concat unit suffix))
+              (concat unit suffix)
             (format "%s%06d%s"
                     prefix
                     (if no-inc org-babel-ada-spark-temp-file-counter
@@ -208,7 +208,7 @@ This function is called by `org-babel-execute:ada'"
   (let* ((assertions (cdr (assq :assertions processed-params)))
          (version (or (cdr (assq :version processed-params)) 0))
          (default-directory org-babel-temporary-directory)
-         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t t))
+         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t))
          (compile-cmd (format "%s%s%s -o %s %s"
                               org-babel-ada-spark-compile-cmd
                               (if (> (+ version org-babel-ada-spark-version) 0)
