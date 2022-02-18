@@ -293,8 +293,8 @@ Emacs-lisp table, otherwise return the results as a string."
 (defun org-babel-ada-spark-pre-tangle-hook ()
   "This function is called just before `org-babel-tangle'.
 When using tangle to export Ada/SPARK code to a file, this
-function is used to set the header of the file according to the value of the variable
-`org-babel-ada-spark-skel-initial-string'."
+function is used to set the header of the file according to the
+value of the variable `org-babel-ada-spark-skel-initial-string'."
   (setq org-babel-ada-spark--ada-skel-initial-string--backup ada-skel-initial-string)
   (setq ada-skel-initial-string (funcall org-babel-ada-spark-skel-initial-string)))
 
