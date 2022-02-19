@@ -5,7 +5,7 @@
 ;; Author: Francesc Rocher <francesc.rocher@gmail.com>
 ;; Maintainer: Francesc Rocher <francesc.rocher@gmail.com>
 ;; URL: https://github.com/rocher/ob-ada-spark
-;; Package-Version: 1.1.0
+;; Version: 0.0.1
 ;; Package-Requires: ((emacs "26.1"))
 ;; Keywords: programming tools, reproducible research
 
