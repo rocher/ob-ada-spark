@@ -325,7 +325,7 @@ sessions. SESSION and PARAMS are not support."
 When using tangle to export Ada/SPARK code to a file, this
 function is used to set the header of the file according to the
 value of the variable `org-babel-ada-spark-skel-initial-string'."
-  (if (boundp ada-skel-initial-string)
+  (if (boundp 'ada-skel-initial-string)
       (progn (setq org-babel-ada-spark--ada-skel-initial-string--backup ada-skel-initial-string)
              (setq ada-skel-initial-string (funcall org-babel-ada-spark-skel-initial-string)))))
 
@@ -335,7 +335,7 @@ value of the variable `org-babel-ada-spark-skel-initial-string'."
   "This function is called just after `org-babel-tangle'.
 Once the file has been generated, this function restores the
 value of the header inserted into Ada/SPARK buffers."
-  (if (boundp ada-skel-initial-string)
+  (if (boundp 'ada-skel-initial-string)
       (setq ada-skel-initial-string org-babel-ada-spark--ada-skel-initial-string--backup)))
 
 (add-hook 'org-babel-pre-tangle-hook #'org-babel-ada-spark-pre-tangle-hook)
