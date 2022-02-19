@@ -7,7 +7,7 @@
 ;; Keywords: Ada, SPARK, literate programming, reproducible research
 ;; URL: https://github.com/rocher/ob-ada-spark
 ;; Package-Requires: ((emacs "26.1"))
-;; Version: 1.1.1
+;; Version: 1.1.2
 
 ;; This file is NOT part of GNU Emacs.
 
