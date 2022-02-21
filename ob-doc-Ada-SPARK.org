@@ -24,23 +24,6 @@
   </div>
 #+end_export
 
-* Template Checklist [12/12]                                       :noexport:
-  - [X] Revise #+TITLE:
-  - [X] Indicate #+AUTHOR:
-  - [X] Add #+EMAIL:
-  - [X] Revise banner source block [3/3]
-    - [X] Add link to a useful language web site
-    - [X] Replace "Language" with language name
-    - [X] Find a suitable graphic and use it to link to the language web site
-  - [X] Write an [[Introduction]]
-  - [X] Describe [[Requirements and Setup][Requirements and Setup]]
-  - [X] Replace "Language" with language name in [[Org Mode Features for Language Source Code Blocks][Babel Features for Language Source Code Blocks]]
-  - [X] Describe [[Header Arguments][Header Arguments]]
-  - [X] Describe support for [[Sessions]]
-  - [X] Describe [[Result Types][Result Types]]
-  - [X] Describe [[Other]] differences from supported languages
-  - [X] Provide brief [[Examples of Use][Examples of Use]]
-
 * Introduction
 Ada is a strongly-typed programming language that supports structured,
 object-oriented, distributed and concurrent programming. Ada is suitable for all
