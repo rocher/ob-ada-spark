@@ -88,23 +88,23 @@ language.
 ** Custom Variables
 Ada/SPARK support can be customized with the following variables:
 
-  * =org-babel-ada-spark-compile-cmd= ::
+  * =ob-ada-spark-compile-cmd= ::
     set the command to invoke the Ada compiler; default value is =gnatmake=
 
-  * =org-babel-ada-spark-version= ::
+  * =ob-ada-spark-version= ::
     default Ada version passed to the compiler; default value is =2012=; the
     only compiler supported is =gnatmake=, so this argument will be passed to
     the compiler as, e.g., =-gnat2012=.
 
-  * =org-babel-ada-spark-compiler-enable-assertions= ::
+  * =ob-ada-spark-compiler-enable-assertions= ::
     flag to enable Ada assertions; default value is ~-gnata~
 
-  * =org-babel-ada-spark-prove-cmd= ::
+  * =ob-ada-spark-prove-cmd= ::
     set the command to invoke the SPARK formal verification tool; default value
     is =gnatprove=; could be a shell script to invoke =gnatprove= and present
     the results in a different way
 
-  * =org-babel-ada-spark-skel-initial-string= ::
+  * =ob-ada-spark-skel-initial-string= ::
     this is the header inserted in files generated with ~org-babel-tangle~; it
     does not interfere with the default header inserted by =ada-mode=.
 
@@ -113,8 +113,8 @@ There is one header argument that switches from execution to formal
 verification: =:prove=. If you set =:prove t=, then the source block will be
 given to =gnatprove= for formal verification of the SPARK code. With any other
 value the source block will be given to =gnatmake= (or to the compiler defined
-in the =org-babel-ada-spark-compile-cmd= custom variable) for Ada/SPARK
-compilation and execution.
+in the =ob-ada-spark-compile-cmd= custom variable) for Ada/SPARK compilation and
+execution.
 
 The common header arguments for both scenarios are:
 
@@ -142,7 +142,7 @@ These are flags and parameters passed to =gnatmake= (or the Ada compiler);
   * =:version= ::
     can be =83=, =95=, =2005=, =2012=, =2020= or =mil=; specific Ada version to
     be used with the current source block. Overrides the value of the
-    =org-babel-ada-spark-version= variable.
+    =ob-ada-spark-version= variable.
 
   * =:with= ::
     list of packages; each one will be replaced by =with PACKAGE; use PACKAGE=
