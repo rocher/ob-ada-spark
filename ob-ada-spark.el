@@ -4,10 +4,10 @@
 
 ;; Author: Francesc Rocher
 ;; Maintainer: Francesc Rocher
-;; Keywords: Ada, SPARK, literate programming, reproducible research
+;; Keywords: languages, tools, outlines
 ;; URL: https://github.com/rocher/ob-ada-spark
 ;; Package-Requires: ((emacs "26.1"))
-;; Version: 1.1.2
+;; Version: 1.2.0
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -72,7 +72,7 @@
                                       (with . nil))
   "Ada/SPARK specific header arguments.")
 
-(defcustom org-babel-ada-spark-compile-cmd "gnatmake"
+(defcustom ob-ada-spark-compile-cmd "gnatmake"
   "Command used to compile Ada/SPARK code into an executable.
 May be either a command in the path, like gnatmake, or an
 absolute path name, like /opt/ada/bin/gnatmake.
@@ -82,7 +82,7 @@ the :ada-version variable specified in an Ada block."
   :group 'org-babel
   :type 'string)
 
-(defcustom org-babel-ada-spark-prove-cmd "gnatprove"
+(defcustom ob-ada-spark-prove-cmd "gnatprove"
   "Command used to prove SPARK code.
 May be either a command in the path, like gnatprove, or an
 absolute path name, like /opt/ada/bin/gnatprove.
@@ -90,17 +90,17 @@ Parameter may be used, like gnatprove --prover=z3."
   :group 'org-babel
   :type 'string)
 
-(defcustom org-babel-ada-spark-compiler-enable-assertions "-gnata"
+(defcustom ob-ada-spark-compiler-enable-assertions "-gnata"
   "Ada compiler flag to enable assertions.
 Used when the :assertions variable is set to t in an Ada block."
   :group 'org-babel
   :type 'string)
 
-(defcustom org-babel-ada-spark-version 2012
+(defcustom ob-ada-spark-version 2012
   "Language version to evaluate Ada/SPARK blocks.
 Works with the GNAT compiler and gnatmake command. If using a
 different compiler, then select 'default' here and specify version
-flags in the `org-babel-ada-spark-compile-cmd' variable."
+flags in the `ob-ada-spark-compile-cmd' variable."
   :group 'org-babel
   :type '(choice
           (const :tag "default" 0)
@@ -110,7 +110,7 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
           (const :tag "Ada 2012" 2012)
           (const :tag "Ada 2022" 2022)))
 
-(defcustom org-babel-ada-spark-skel-initial-string #'(lambda () (format "-----------------------------------------------------------------------------
+(defcustom ob-ada-spark-skel-initial-string (lambda () (format "-----------------------------------------------------------------------------
 --
 --  Source code generated automatically by 'org-babel-tangle' from
 --  file %s
@@ -121,13 +121,13 @@ flags in the `org-babel-ada-spark-compile-cmd' variable."
 -----------------------------------------------------------------------------
 
 "
-                                                                        (buffer-file-name (current-buffer))
-                                                                        (time-stamp-string "%Y-%02m-%02d %02H:%02M:%02S")))
+                                                               (buffer-file-name (current-buffer))
+                                                               (time-stamp-string "%Y-%02m-%02d %02H:%02M:%02S")))
   "Header written in files generated with `org-babel-tangle'."
   :group 'babel
   :type 'function)
 
-(defconst org-babel-ada-spark-template:proc-main
+(defconst ob-ada-spark-template-proc-main
   "with Ada.Text_IO; use Ada.Text_IO;
 %s
 procedure Main is
@@ -138,17 +138,17 @@ end Main;
   "Basic procedure template.
 Inspired by the Hello World example.")
 
-(defvar org-babel-ada-spark-temp-file-counter 0
+(defvar ob-ada-spark-temp-file-counter 0
   "Internal counter to generate sequential Ada/SPARK unit names.")
 
-(defun org-babel-ada-spark-temp-file (prefix suffix &optional unit no-inc)
+(defun ob-ada-spark-temp-file (prefix suffix &optional unit no-inc)
   "Create a temporary file with a name compatible with Ada/SPARK.
 Creates a temporary filename starting with PREFIX, followed by a
 number or an Ada unit name, and endded in SUFFIX.
 
 Optional argument UNIT is a string containing the name of an Ada
 unit. If it is not specified, then the filename is composed with
-the file counter `org-babel-ada-spark-temp-file-counter'.
+the file counter `ob-ada-spark-temp-file-counter'.
 
 When argument NO-INC is t, then the file counter is not
 incremented, thus allowing the creation of several temporary
@@ -166,9 +166,9 @@ files for different units with the same numbering."
               (concat unit suffix)
             (format "%s%06d%s"
                     prefix
-                    (if no-inc org-babel-ada-spark-temp-file-counter
-                      (setq org-babel-ada-spark-temp-file-counter
-                       (1+ org-babel-ada-spark-temp-file-counter)))
+                    (if no-inc ob-ada-spark-temp-file-counter
+                      (setq ob-ada-spark-temp-file-counter
+                       (1+ ob-ada-spark-temp-file-counter)))
                     suffix)))
          (file-name (file-name-concat temp-file-directory temp-file-name)))
     (f-touch (file-name-concat temp-file-directory temp-file-name))
@@ -180,16 +180,17 @@ PROCESSED-PARAMS is the list of source code block parameters with
 expanded variables, as returned by the function
 `org-babel-process-params'."
   (let* ((template (cdr (assq :template processed-params)))
-         (template-var (concat "org-babel-ada-spark-template:" template))
+         (template-var (concat "ob-ada-spark-template-" template))
          (vars (org-babel--get-vars params))
          (with (cdr (assq :with processed-params))))
-    (if (not (null vars))
-        (mapc
-         (lambda (var)
-           (let ((key (car var))
-                 (val (cdr var)))
-             (setq body (string-replace (format "%s" key) (format "%s" val) body))))
-         vars))
+    (message (format "vars is %S" vars))
+    (unless (null vars)
+      (mapc
+       (lambda (var)
+         (let ((key (car var))
+               (val (cdr var)))
+           (setq body (string-replace (format "%s" key) (format "%s" val) body))))
+       vars))
     (if (boundp (intern template-var))
         (format (eval (intern template-var))
                 (if (null with)
@@ -213,15 +214,15 @@ This function is called by `org-babel-execute-src-block'"
          (prove (cdr (assq :prove processed-params)))
          (unit (cdr (assq :unit processed-params)))
          (temp-src-file
-          (org-babel-ada-spark-temp-file "ada-src" ".adb" unit)))
+          (ob-ada-spark-temp-file "ada-src" ".adb" unit)))
     ;; (message "--  processed-params: %s" processed-params) ;; debug only
     (with-temp-file temp-src-file (insert full-body))
     (if (string-equal prove "t")
         ;; prove SPARK code
-        (org-babel-ada-spark-prove unit temp-src-file processed-params)
-      (org-babel-ada-spark-execute unit temp-src-file processed-params))))
+        (ob-ada-spark-prove unit temp-src-file processed-params)
+      (ob-ada-spark-execute unit temp-src-file processed-params))))
 
-(defun org-babel-ada-spark-execute (unit temp-src-file processed-params)
+(defun ob-ada-spark-execute (unit temp-src-file processed-params)
   "Execute a block of Ada/SPARK code with org-babel.
 UNIT is the name of the Ada/SPARK unit. TEMP-SRC-FILE is the name
 of the source file. PROCESSED-PARAMS is the list of source code
@@ -232,17 +233,17 @@ This function is called by `org-babel-execute:ada'"
   (let* ((assertions (cdr (assq :assertions processed-params)))
          (version (or (cdr (assq :version processed-params)) 0))
          (default-directory org-babel-temporary-directory)
-         (temp-bin-file (org-babel-ada-spark-temp-file "ada-bin" "" unit t))
+         (temp-bin-file (ob-ada-spark-temp-file "ada-bin" "" unit t))
          (compile-cmd (format "%s%s%s -o %s %s"
-                              org-babel-ada-spark-compile-cmd
-                              (if (> (+ version org-babel-ada-spark-version) 0)
+                              ob-ada-spark-compile-cmd
+                              (if (> (+ version ob-ada-spark-version) 0)
                                   (format " -gnat%d"
                                           (if (> version 0)
                                               version
-                                            org-babel-ada-spark-version))
+                                            ob-ada-spark-version))
                                 "")
                               (if (null assertions) ""
-                                (concat " " org-babel-ada-spark-compiler-enable-assertions))
+                                (concat " " ob-ada-spark-compiler-enable-assertions))
                               temp-bin-file
                               temp-src-file)))
     (message "--  executing Ada/SPARK source code block")
@@ -257,7 +258,7 @@ This function is called by `org-babel-execute:ada'"
     (org-babel-eval compile-cmd "")
     (org-babel-eval temp-bin-file "")))
 
-(defun org-babel-ada-spark-prove (unit temp-src-file processed-params)
+(defun ob-ada-spark-prove (unit temp-src-file processed-params)
   "Prove a block of SPARK code with org-babel.
 UNIT is the name of the Ada/SPARK unit. TEMP-SRC-FILE is the name
 of the temporary file. PROCESSED-PARAMS is the list of source
@@ -273,10 +274,10 @@ This function is called by `org-babel-execute:ada'"
          (warnings (cdr (assq :warnings processed-params)))
          (default-directory org-babel-temporary-directory)
          (temp-gpr-file
-          (org-babel-ada-spark-temp-file "spark_p" ".gpr" unit))
+          (ob-ada-spark-temp-file "spark_p" ".gpr" unit))
          (temp-project (file-name-base temp-gpr-file))
          (prove-cmd (format "%s -P%s%s%s%s%s%s%s -u %s"
-                            org-babel-ada-spark-prove-cmd
+                            ob-ada-spark-prove-cmd
                             temp-gpr-file
                             (if (null assumptions) "" " --assumptions")
                             (if (null level) "" (format " --level=%s" level))
@@ -314,32 +315,26 @@ Ada and SPARK are compiled languages with no support for
 sessions. SESSION and PARAMS are not support."
   (error "Ada & SPARK are compiled languages -- no support for sessions"))
 
-(defun org-babel-ada-spark-table-or-string (results)
-  "Convert RESULTS into an Emacs-list table, if it is a table."
-  results)
+(defvar ob-ada-spark--ada-skel-initial-string--backup "")
 
-(defvar org-babel-ada-spark--ada-skel-initial-string--backup "")
-
-(defun org-babel-ada-spark-pre-tangle-hook ()
+(defun ob-ada-spark-pre-tangle-hook ()
   "This function is called just before `org-babel-tangle'.
 When using tangle to export Ada/SPARK code to a file, this
 function is used to set the header of the file according to the
-value of the variable `org-babel-ada-spark-skel-initial-string'."
+value of the variable `ob-ada-spark-skel-initial-string'."
   (if (boundp 'ada-skel-initial-string)
-      (progn (setq org-babel-ada-spark--ada-skel-initial-string--backup ada-skel-initial-string)
-             (setq ada-skel-initial-string (funcall org-babel-ada-spark-skel-initial-string)))))
+      (progn (setq ob-ada-spark--ada-skel-initial-string--backup ada-skel-initial-string)
+             (setq ada-skel-initial-string (funcall ob-ada-spark-skel-initial-string)))))
 
-
-
-(defun org-babel-ada-spark-post-tangle-hook ()
+(defun ob-ada-spark-post-tangle-hook ()
   "This function is called just after `org-babel-tangle'.
 Once the file has been generated, this function restores the
 value of the header inserted into Ada/SPARK buffers."
   (if (boundp 'ada-skel-initial-string)
-      (setq ada-skel-initial-string org-babel-ada-spark--ada-skel-initial-string--backup)))
+      (setq ada-skel-initial-string ob-ada-spark--ada-skel-initial-string--backup)))
 
-(add-hook 'org-babel-pre-tangle-hook #'org-babel-ada-spark-pre-tangle-hook)
-(add-hook 'org-babel-post-tangle-hook #'org-babel-ada-spark-post-tangle-hook)
+(add-hook 'org-babel-pre-tangle-hook #'ob-ada-spark-pre-tangle-hook)
+(add-hook 'org-babel-post-tangle-hook #'ob-ada-spark-post-tangle-hook)
 
 (provide 'ob-ada-spark)
 
