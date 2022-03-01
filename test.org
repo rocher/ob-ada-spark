@@ -3,11 +3,11 @@
 
 * Ada/SPARK : Hello World Example
 #+BEGIN_SRC ada
-    with Ada.Text_IO; use Ada.Text_IO;
-    procedure Hello is
-    begin
-       Put_Line("Hello world! This is Ada/SPARK support for Emacs org-mode!");
-    end Hello;
+  with Ada.Text_IO; use Ada.Text_IO;
+  procedure Hello is
+  begin
+     Put_Line("Hello world! This is Ada/SPARK support for Emacs org-mode!");
+  end Hello;
 #+END_SRC
 
 * SPARK : formally verified =Increment= function
