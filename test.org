@@ -1,20 +1,28 @@
 #+TITLE:Ada/SPARK support for org-mode
 
-
 * Ada/SPARK : Hello World Example
+
 #+BEGIN_SRC ada
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
   with Ada.Text_IO; use Ada.Text_IO;
   procedure Hello is
   begin
      Put_Line("Hello world! This is Ada/SPARK support for Emacs org-mode!");
   end Hello;
+
 #+END_SRC
 
-* SPARK : formally verified =Increment= function
+* SPARK : formally verified ~Increment~ function
+
 If you have SPARK installed, try setting the =:prove= header argument of the
 following block code to =t= and =gnatprove=  will verify this code.
 
-#+BEGIN_SRC ada :version 2020 :unit main :prove t
+#+BEGIN_SRC ada :version 2020 :unit main prove: t
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
   with Ada.Text_IO; use Ada.Text_IO;
 
   procedure Main with
@@ -35,6 +43,7 @@ following block code to =t= and =gnatprove=  will verify this code.
      Increment (My_Integer);
      Put_Line("Last Integer is" & My_Integer'Image);
   end Main;
+
 #+END_SRC
 
 * Template Support
