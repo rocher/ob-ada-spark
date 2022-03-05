@@ -7,7 +7,7 @@
 ;; Keywords: languages, tools, outlines
 ;; URL: https://github.com/rocher/ob-ada-spark
 ;; Package-Requires: ((emacs "26.1"))
-;; Version: 1.2.0
+;; Version: 1.2.1
 
 ;; This file is NOT part of GNU Emacs.
 
