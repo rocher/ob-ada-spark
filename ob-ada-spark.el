@@ -6,8 +6,8 @@
 ;; Maintainer: Francesc Rocher
 ;; Keywords: languages, tools, outlines
 ;; URL: https://github.com/rocher/ob-ada-spark
-;; Package-Requires: ((emacs "26.1"))
-;; Version: 1.2.1
+;; Package-Requires: ((emacs "26.1") (f "0.20.0"))
+;; Version: 1.2.2
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -40,6 +40,7 @@
 
 ;;; Code:
 (require 'ob)
+(require 'f)
 
 (defvar org-babel-tangle-lang-exts)
 (add-to-list 'org-babel-tangle-lang-exts '("ada" . "adb"))
