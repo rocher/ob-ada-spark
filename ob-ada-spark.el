@@ -252,10 +252,11 @@ This function is called by `org-babel-execute:ada'"
     (if (stringp unit)
         (cl-mapcar
          (lambda (ext)
-           (let ((file (f-join default-directory)))
-             (concat unit ext
-                   (when (f-exists? file) (f-delete file)
-                    '("" ".ali" ".o")))))))
+           (let ((file (f-join default-directory
+                               (concat unit ext))))
+                (when (f-exists? file) (f-delete file))))
+         '("" ".ali" ".o")))
+
     (org-babel-eval compile-cmd "")
     (org-babel-eval temp-bin-file "")))
 
