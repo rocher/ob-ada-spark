@@ -184,8 +184,8 @@ expanded variables, as returned by the function
          (template-var (concat "ob-ada-spark-template-" template))
          (vars (org-babel--get-vars params))
          (with (cdr (assq :with processed-params))))
-    (message "vars is %s" vars) ;; debug only
-    (unless (s-blank? vars)
+    (message (format "vars is %S" vars))
+    (unless (null vars)
       (mapc
        (lambda (var)
          (let ((key (car var))
