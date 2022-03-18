@@ -40,7 +40,6 @@
 
 ;;; Code:
 (require 'ob)
-(require 'ob-core)
 (require 'f)
 
 (defvar org-babel-tangle-lang-exts)
