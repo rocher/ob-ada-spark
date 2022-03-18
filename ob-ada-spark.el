@@ -190,7 +190,7 @@ expanded variables, as returned by the function
        (lambda (var)
          (let ((key (car var))
                (val (cdr var)))
-           (setq body (string-replace (format "%s" key) (format "%s" val) body))))
+           (setq body (s-replace (format "%s" key) (format "%s" val) body))))
        vars))
     (if (boundp (intern template-var))
         (format (eval (intern template-var))
@@ -198,7 +198,7 @@ expanded variables, as returned by the function
                     ""
                   (mapconcat
                    (lambda (w) (format "with %s; use %s;\n" w w))
-                   (split-string with)
+                   (s-split " " with t)
                    ""))
                 body)
       body)))
@@ -218,7 +218,7 @@ This function is called by `org-babel-execute-src-block'"
           (ob-ada-spark-temp-file "ada-src" ".adb" unit)))
     ;; (message "--  processed-params: %s" processed-params) ;; debug only
     (with-temp-file temp-src-file (insert full-body))
-    (if (string-equal prove "t")
+    (if (s-equals? prove "t")
         ;; prove SPARK code
         (ob-ada-spark-prove unit temp-src-file processed-params)
       (ob-ada-spark-execute unit temp-src-file processed-params))))
