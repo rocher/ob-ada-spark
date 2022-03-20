@@ -7,7 +7,7 @@
 ;; Keywords: languages, tools, outlines
 ;; URL: https://github.com/rocher/ob-ada-spark
 ;; Package-Requires: ((emacs "26.1") (f "0.20.0"))
-;; Version: 1.2.2
+;; Version: 1.2.3
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -159,7 +159,7 @@ files for different units with the same numbering."
               (concat (file-remote-p default-directory)
                       org-babel-remote-temporary-directory)
             (or (and (boundp 'org-babel-temporary-directory)
-                     (file-exists-p org-babel-temporary-directory)
+                     (f-exists? org-babel-temporary-directory)
                      org-babel-temporary-directory)
                 temporary-file-directory)))
          (temp-file-name
@@ -171,8 +171,8 @@ files for different units with the same numbering."
                       (setq ob-ada-spark-temp-file-counter
                        (1+ ob-ada-spark-temp-file-counter)))
                     suffix)))
-         (file-name (file-name-concat temp-file-directory temp-file-name)))
-    (f-touch (file-name-concat temp-file-directory temp-file-name))
+         (file-name (f-join temp-file-directory temp-file-name)))
+    (f-touch (f-join temp-file-directory temp-file-name))
     file-name))
 
 (defun org-babel-expand-body:ada (body params &optional processed-params)
@@ -184,13 +184,13 @@ expanded variables, as returned by the function
          (template-var (concat "ob-ada-spark-template-" template))
          (vars (org-babel--get-vars params))
          (with (cdr (assq :with processed-params))))
-    (message (format "vars is %S" vars))
-    (unless (null vars)
+    ;; (message "--  vars is %S" vars) ;; debug only
+    (when vars
       (mapc
        (lambda (var)
          (let ((key (car var))
                (val (cdr var)))
-           (setq body (string-replace (format "%s" key) (format "%s" val) body))))
+           (setq body (s-replace (format "%s" key) (format "%s" val) body))))
        vars))
     (if (boundp (intern template-var))
         (format (eval (intern template-var))
@@ -198,7 +198,7 @@ expanded variables, as returned by the function
                     ""
                   (mapconcat
                    (lambda (w) (format "with %s; use %s;\n" w w))
-                   (split-string with)
+                   (s-split " " with t)
                    ""))
                 body)
       body)))
@@ -218,7 +218,7 @@ This function is called by `org-babel-execute-src-block'"
           (ob-ada-spark-temp-file "ada-src" ".adb" unit)))
     ;; (message "--  processed-params: %s" processed-params) ;; debug only
     (with-temp-file temp-src-file (insert full-body))
-    (if (string-equal prove "t")
+    (if (s-equals? prove "t")
         ;; prove SPARK code
         (ob-ada-spark-prove unit temp-src-file processed-params)
       (ob-ada-spark-execute unit temp-src-file processed-params))))
@@ -249,13 +249,15 @@ This function is called by `org-babel-execute:ada'"
                               temp-src-file)))
     (message "--  executing Ada/SPARK source code block")
     (message "--  %s" compile-cmd)
+    ;; (message "--  unit is %s" unit) ;; debug only
     (if (stringp unit)
         (cl-mapcar
          (lambda (ext)
-           (let ((file (file-name-concat default-directory
-                                         (concat unit ext))))
-             (when (file-exists-p file) (delete-file file))))
+           (let ((file (f-join default-directory
+                               (concat unit ext))))
+             (if (f-exists? file) (f-delete file))))
          '("" ".ali" ".o")))
+
     (org-babel-eval compile-cmd "")
     (org-babel-eval temp-bin-file "")))
 
@@ -276,7 +278,7 @@ This function is called by `org-babel-execute:ada'"
          (default-directory org-babel-temporary-directory)
          (temp-gpr-file
           (ob-ada-spark-temp-file "spark_p" ".gpr" unit))
-         (temp-project (file-name-base temp-gpr-file))
+         (temp-project (f-base temp-gpr-file))
          (prove-cmd (format "%s -P%s%s%s%s%s%s%s -u %s"
                             ob-ada-spark-prove-cmd
                             temp-gpr-file
@@ -297,16 +299,11 @@ This function is called by `org-babel-execute:ada'"
 end %s;
 "
                       temp-project
-                      (file-name-nondirectory temp-src-file)
+                      (f-filename temp-src-file)
                       temp-src-file
                       temp-project)))
     ;; remove gnatprove directory
-    (when-let ((gnatprove-directory
-                (file-name-concat
-                 org-babel-temporary-directory "gnatprove"))
-               (exists-gnatprove-directory
-                (file-exists-p gnatprove-directory)))
-      (delete-directory gnatprove-directory t))
+    (f-delete (f-join org-babel-temporary-directory "gnatprove") t)
     ;; invoke gnatprove
     (org-babel-eval prove-cmd "")))
 

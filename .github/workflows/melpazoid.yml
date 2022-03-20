@@ -24,7 +24,7 @@ jobs:
       env:
         LOCAL_REPO: ${{ github.workspace }}
         # RECIPE is your recipe as written for MELPA:
-        RECIPE: (ob-ada-spark :repo "rocher/ob-ada-spark" :fetcher github :branch "develop")
+        RECIPE: (ob-ada-spark :repo "rocher/ob-ada-spark" :fetcher github)
         # set this to false (or remove it) if the package isn't on MELPA:
         EXIST_OK: false
       run: echo $GITHUB_REF && make -C ~/melpazoid
