@@ -132,6 +132,9 @@ These are flags and parameters passed to =gnatmake= (or the Ada compiler);
     in the preamble of the [[template]].
 
 *** Arguments for SPARK formal verification
+:PROPERTIES:
+:CUSTOM_ID: arguments-for-SPARK
+:END:
 These are flags and parameters passed to =gnatprove=. When set to =nil= no flag
 or argument will be passed to =gnatprove= so the default values will be used.
 
