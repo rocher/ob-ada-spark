@@ -185,7 +185,7 @@ expanded variables, as returned by the function
          (vars (org-babel--get-vars params))
          (with (cdr (assq :with processed-params))))
     (message "vars is %S" vars) ;; debug only
-    (unless (s-blank? vars)
+    (when vars
       (mapc
        (lambda (var)
          (let ((key (car var))
@@ -254,7 +254,7 @@ This function is called by `org-babel-execute:ada'"
          (lambda (ext)
            (let ((file (f-join default-directory
                                (concat unit ext))))
-                (when (f-exists? file) (f-delete file))))
+             (if (f-exists? file) (f-delete file))))
          '("" ".ali" ".o")))
 
     (org-babel-eval compile-cmd "")
