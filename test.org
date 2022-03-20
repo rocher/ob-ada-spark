@@ -1,25 +1,136 @@
 #+TITLE:Ada/SPARK support for org-mode
 
 * Ada/SPARK : Hello World Example
+** Simplest example
 
-#+BEGIN_SRC ada
+#+begin_src ada
 
   --  press Ctrl-C Ctrl-C to evaluate this block
 
   with Ada.Text_IO; use Ada.Text_IO;
   procedure Hello is
   begin
-     Put_Line("Hello world! This is Ada/SPARK support for Emacs org-mode!");
+     Put_Line ("Hello world!");
   end Hello;
 
-#+END_SRC
+#+end_src
+
+** Using header arguments
+*** Specify Ada unit name
+
+#+begin_src ada :unit Hello_World
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  with Ada.Text_IO; use Ada.Text_IO;
+  procedure Hello is
+  begin
+     Put_Line ("Hello world!");
+  end Hello;
+
+#+end_src
+
+*** Specify Ada version
+**** Ada 2012 (default)
+
+#+begin_src ada :version 2012 :unit Ada2012 :template proc-main
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  Put_Line ("Hello world!");
+
+#+end_src
+
+**** Ada 2020
+
+#+begin_src ada :version 2020 :unit Ada2020 :template proc-main
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  Put_Line ("Hello world!");
+
+#+end_src
+
+
+* Template Support
+** Basic support
+With templates there is no need to write the full procedure, only the body. That
+is, the template is a wrapper for a procedure body. The most basic template is
+the wrapper for the "Hello World" example, called =proc-main=. It includes the
+package =Ada.Text_IO=, so there is no need to write it.
+
+*** Example
+
+#+begin_src ada :template proc-main :unit template1
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  Put_Line ("Hello, world!");
+
+#+end_src
+
+** Available templates
+*** Template 'proc-main'
+It is defined using a Lisp constant:
+
+#+begin_src lisp
+
+  (defconst ob-ada-spark-template-proc-main
+    "with Ada.Text_IO; use Ada.Text_IO;
+  %s
+  procedure Main is
+  begin
+    %s
+  end Main;
+  "
+    "Basic procedure template.
+  Inspired by the Hello World example.")
+
+#+end_src
+
+*** Custom templates
+You can define your own templates based on the example above. Future release
+will include a much nicer way of defining your templates based on babel source
+code blocks with special property or tag.
+
+** With-ing packages
+Templates support =with= header parameters. For example, the header argument:
+
+#+begin_example
+
+  :with Ada.Strings.Fixed Ada.Exceptions
+
+#+end_example
+
+will be expanded to following the source code in the /with section/ of the
+template:
+
+#+begin_example
+
+  with Ada.Strings.Fixed; use Strings.Fixed;
+  with Ada.Exceptions; use Ada.Exceptions;
+
+#+end_example
+
+*** Example
+
+#+begin_src ada :with Ada.Strings.Fixed Ada.Containers :template proc-main :unit template3
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  Put_Line ("Hello world!");
+
+#+end_src
+
 
 * SPARK : formally verified ~Increment~ function
-
 If you have SPARK installed, try setting the =:prove= header argument of the
-following block code to =t= and =gnatprove=  will verify this code.
+following block code to =t= and =gnatprove= will verify this code.
 
-#+BEGIN_SRC ada :version 2020 :unit main prove: t
+** Example
+*** Prove the code
+
+#+begin_src ada :prove t :version 2020 :unit spark_run
 
   --  press Ctrl-C Ctrl-C to evaluate this block
 
@@ -41,44 +152,151 @@ following block code to =t= and =gnatprove=  will verify this code.
      My_Integer : Integer := Integer'Last - 1;
   begin
      Increment (My_Integer);
-     Put_Line("Last Integer is" & My_Integer'Image);
+     Put_Line ("Last Integer is" & My_Integer'Image);
   end Main;
 
-#+END_SRC
+#+end_src
 
-* Template Support
-** Basic support
-With templates there is no need to write the full procedure, only the body. The
-template is a wrapper for the procedure body, like this:
+*** Run the code
+When you remove the =prove= argument or set it to =nil=, the SPARK code will be
+compiled and run
 
-#+BEGIN_SRC ada :template proc-main
-  Put_Line ("Hello, world --now with templates!");
-#+END_SRC
+#+begin_src ada :version 2020 :unit spark_run
 
-** With-ing packages
-Templates support =with= header parameters. For example, the header argument
-#+BEGIN_EXAMPLE
-  :with Ada.Text_IO Ada.Exceptions;
-#+END_EXAMPLE
+  --  press Ctrl-C Ctrl-C to evaluate this block
 
-will be expanded to following the source code in the /with section/ of the
-template:
-#+BEGIN_SRC ada
   with Ada.Text_IO; use Ada.Text_IO;
-  with Ada.Exceptions; use Ada.Exceptions;
-#+END_SRC
 
-*** Template 'proc-main'
-The template ~proc-main~ already includes the module =Ada.Text_IO=, so there is
-no need to write it. For example:
-#+BEGIN_SRC ada :template proc-main
-  declare
-    X : Positive := 100;
+  procedure Main with
+    SPARK_Mode => On
+  is
+     procedure Increment (X : in out Integer) with
+       Global  => null,
+       Depends => (X => X),
+       Pre     => (X < Integer'Last),
+       Post    => (X = X'Old + 1)
+     is
+     begin
+        X := X + 1;
+     end Increment;
+
+     My_Integer : Integer := Integer'Last - 1;
   begin
-    X := Positive'Last + X;
-    Put_Line ("X =" & X'Image);
-  exception
-    when C : Constraint_Error =>
-      Put_Line ("Exception caught");
-  end;
-#+END_SRC
+     Increment (My_Integer);
+     Put_Line ("Last Integer is" & My_Integer'Image);
+  end Main;
+
+#+end_src
+
+*** Prove wrong code
+
+#+begin_src ada :prove t :version 2020 :unit spark_wrong
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  with Ada.Text_IO; use Ada.Text_IO;
+
+  procedure Spark_Wrong with
+    SPARK_Mode => On
+  is
+     procedure Increment (X : in out Integer) with
+       Global  => null,
+       Depends => (X => X),
+       Pre     => (X <= Integer'Last),
+       Post    => (X = X'Old + 1)
+     is
+     begin
+        X := X + 1;
+     end Increment;
+
+     My_Integer : Integer := Integer'Last - 1;
+  begin
+     Increment (My_Integer);
+     Put_Line ("Last Integer is" & My_Integer'Image);
+  end Spark_Wrong;
+
+#+end_src
+
+Please refer to the [[file:ob-doc-Ada-SPARK.org::#arguments-for-SPARK][documentation]] for more information.
+
+
+* Literate Programming
+
+** Basic Support
+Basic Support for literate programming consist in named block substitutions.
+
+*** Example
+Block of code. Cannot be evaluated on its own:
+
+#+name: __Say_Hello_World__
+#+begin_src ada
+
+  Put_Line ("Hello world!");
+
+#+end_src
+
+Block substitution performed here:
+
+#+header: :noweb yes
+#+begin_src ada :unit LP_01
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  with Ada.Text_IO; use Ada.Text_IO;
+  procedure LP_01 is
+  begin
+     <<__Say_Hello_World__>>
+  end LP_01;
+
+#+end_src
+
+
+** Using Variables
+
+*** Example
+Variables are literally substituted:
+
+#+header: :noweb yes
+#+header: :var __TIMES__=2
+#+begin_src ada :unit LP_02
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  with Ada.Text_IO; use Ada.Text_IO;
+  procedure LP_02 is
+  begin
+    for I in 1 .. __TIMES__ loop
+      <<__Say_Hello_World__>>
+    end loop;
+  end LP_02;
+
+#+end_src
+
+*** TODO Variable Substitution in Code Blocks
+Block of code. Cannot be evaluated on its own:
+
+#+name: __Say_Message__
+#+header: :var __MSG__=Hello World!
+#+begin_src ada
+
+  Put_Line ("__MSG__");
+
+#+end_src
+
+Block substitution performed here:
+
+#+header: :noweb yes
+#+header: :var __TIMES__=2
+#+begin_src ada :unit LP_03
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  with Ada.Text_IO; use Ada.Text_IO;
+  procedure LP_03 is
+  begin
+    for I in 1 .. __TIMES__ loop
+      <<__Say_Message__>>
+    end loop;
+  end LP_03;
+
+#+end_src
