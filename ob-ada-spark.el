@@ -184,7 +184,7 @@ expanded variables, as returned by the function
          (template-var (concat "ob-ada-spark-template-" template))
          (vars (org-babel--get-vars params))
          (with (cdr (assq :with processed-params))))
-    (message "vars is %S" vars) ;; debug only
+    ;; (message "--  vars is %S" vars) ;; debug only
     (when vars
       (mapc
        (lambda (var)
@@ -249,6 +249,7 @@ This function is called by `org-babel-execute:ada'"
                               temp-src-file)))
     (message "--  executing Ada/SPARK source code block")
     (message "--  %s" compile-cmd)
+    ;; (message "--  unit is %s" unit) ;; debug only
     (if (stringp unit)
         (cl-mapcar
          (lambda (ext)
