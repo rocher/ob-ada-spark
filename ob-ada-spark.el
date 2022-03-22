@@ -45,6 +45,8 @@
 (defvar org-babel-tangle-lang-exts)
 (add-to-list 'org-babel-tangle-lang-exts '("ada" . "adb"))
 
+(defvar org-babel-temporary-directory)
+
 (defvar org-babel-default-header-args:ada '((:assumptions . nil)
                                             (:assertions . t)
                                             (:level . \4)
