@@ -1,13 +1,13 @@
 #+TITLE:Ada/SPARK support for Emacs org-babel
 
-** Hello world example
+* Hello world example
 
 No explanation needed:
 
 [[./example-01-hello-world.png]]
 
 
-** Hello world with literal examples
+* Hello world with literal examples
 
 =org-babel= can also be used to write literate programming code. =ob-ada-spark=
 adds the possibility to create /literal variables/ in the =header= that are not
@@ -25,7 +25,7 @@ A more complex example would be:
 [[./example-02-literal-variables.png]]
 
 
-** SPARK prove
+* SPARK prove
 
 SPARK code can be evaluated and proved. Evaluation is the default action when
 =Ctrl-C Ctrl-C= is pressed. Add =:prove t= to prove SPARK code:
