@@ -7,7 +7,7 @@
 ;; Keywords: languages, tools, outlines
 ;; URL: https://github.com/rocher/ob-ada-spark
 ;; Package-Requires: ((emacs "26.1") (f "0.20.0"))
-;; Version: 1.2.4
+;; Version: 1.2.5
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -186,15 +186,24 @@ expanded variables, as returned by the function
          (template-var (concat "ob-ada-spark-template-" template))
          (vars (org-babel--get-vars params))
          (with (cdr (assq :with processed-params))))
-    ;; (message "--  vars is %S" vars) ;; debug only
+
+    ;; debug/devel only
+    ;; (message "--  vars is %S" vars)
+
+    ;; expand literal variables in the body, if any
     (when vars
       (mapc
        (lambda (var)
          (let ((key (car var))
                (val (cdr var)))
+           ;; TODO debug message with (key, value) replaced
+           (message "--  var %s replaced with '%s'" key val)
            (setq body (s-replace (format "%s" key) (format "%s" val) body))))
        vars))
+
+    ;; if a template is used, replace body in template, otherwise use body
     (if (boundp (intern template-var))
+        ;; TODO debug mesage with template info
         (format (eval (intern template-var))
                 (if (null with)
                     ""
@@ -223,6 +232,7 @@ This function is called by `org-babel-execute-src-block'"
     (if (s-equals? prove "t")
         ;; prove SPARK code
         (ob-ada-spark-prove unit temp-src-file processed-params)
+      ;; run Ada/SPARK code
       (ob-ada-spark-execute unit temp-src-file processed-params))))
 
 (defun ob-ada-spark-execute (unit temp-src-file processed-params)
@@ -249,9 +259,8 @@ This function is called by `org-babel-execute:ada'"
                                 (concat " " ob-ada-spark-compiler-enable-assertions))
                               temp-bin-file
                               temp-src-file)))
-    (message "--  executing Ada/SPARK source code block")
-    (message "--  %s" compile-cmd)
-    ;; (message "--  unit is %s" unit) ;; debug only
+
+    ;; clean previous evaluation of the same unit
     (if (stringp unit)
         (cl-mapcar
          (lambda (ext)
@@ -260,7 +269,17 @@ This function is called by `org-babel-execute:ada'"
              (if (f-exists? file) (f-delete file))))
          '("" ".ali" ".o")))
 
+    ;; comile source code
+    (if (stringp unit)
+        (message "--  compiling Ada/SPARK source code of unit %s" unit)
+      (message "--  compiling Ada/SPARK source code block"))
+    (message "--  %s" compile-cmd)
     (org-babel-eval compile-cmd "")
+
+    ;; run binary file
+    (if (stringp unit)
+        (message "--  running unit %s" unit)
+      (message "--  running binary file %s" temp-bin-file))
     (org-babel-eval temp-bin-file "")))
 
 (defun ob-ada-spark-prove (unit temp-src-file processed-params)
@@ -291,8 +310,7 @@ This function is called by `org-babel-execute:ada'"
                             (if (null report) "" (format " --report=%s" report))
                             (if (null warnings) "" (format " --warnings=%s" warnings))
                             temp-src-file)))
-    (message "--  proving SPARK source code block")
-    (message "--  %s" prove-cmd)
+
     ;; create temporary project
     (with-temp-file temp-gpr-file
       (insert (format "project %s is
@@ -304,9 +322,15 @@ end %s;
                       (f-filename temp-src-file)
                       temp-src-file
                       temp-project)))
+
     ;; remove gnatprove directory
     (f-delete (f-join org-babel-temporary-directory "gnatprove") t)
+
     ;; invoke gnatprove
+    (if (stringp unit)
+        (message "--  proving SPARK source code of unit %s" unit)
+      (message "--  proving SPARK source code block"))
+    (message "--  %s" prove-cmd)
     (org-babel-eval prove-cmd "")))
 
 (defun org-babel-prep-session:ada-spark (session params)

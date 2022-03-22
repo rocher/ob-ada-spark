@@ -1,4 +1,4 @@
-#+TITLE:Ada/SPARK support for org-mode
+#+TITLE:Ada/SPARK support for org-babel
 
 * Ada/SPARK : Hello World Example
 ** Simplest example

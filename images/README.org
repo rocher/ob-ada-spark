@@ -1,0 +1,33 @@
+#+TITLE:Ada/SPARK support for Emacs org-babel
+
+** Hello world example
+
+No explanation needed:
+
+[[./example-01-hello-world.png]]
+
+
+** Hello world with literal examples
+
+=org-babel= can also be used to write literate programming code. =ob-ada-spark=
+adds the possibility to create /literal variables/ in the =header= that are not
+only literally substituted, but also evaluated, and replaced in the source code
+before evaluation.
+
+For example, it would be possible to write ~__TIMES__=(/ 4 2)~ instead of only
+~2~.
+
+A more complex example would be:
+#+begin_example
+  __Path__=(file-name-directory (buffer-file-name (current-buffer)))
+#+end_example
+
+[[./example-02-literal-variables.png]]
+
+
+** SPARK prove
+
+SPARK code can be evaluated and proved. Evaluation is the default action when
+=Ctrl-C Ctrl-C= is pressed. Add =:prove t= to prove SPARK code:
+
+[[./example-03-spark-prove.png]]
