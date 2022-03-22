@@ -1,4 +1,4 @@
-#+TITLE:Ada/SPARK support for Emacs org-mode
+#+TITLE:Ada/SPARK support for Emacs org-babel
 
 
 ** Introduction
@@ -19,19 +19,8 @@ repository. For now, just load it in Emacs, open an =org= file and enjoy.
 Additional and detailed information will be provided soon.
 
 CAVEAT: To have font highlight (keywords, variables) in Ada/SPARK code blocks in
-=org-mode= , it is necessary to have =ada-mode= installed and open and Ada file
+=org-babel= , it is necessary to have =ada-mode= installed and open and Ada file
 in Emacs before the =org= file.
 
 ** Examples
-*** Ada "Hello World"
-
-[[ada.gif]]
-
-
-*** SPARK execution
-
-[[spark-execute.gif]]
-
-*** SPARK verification
-
-[[spark-prove.gif]]
+Please see some screenshots in the [[file:./images/README.org][images directory]].
