@@ -130,7 +130,7 @@ following block code to =t= and =gnatprove= will verify this code.
 ** Example
 *** Prove the code
 
-#+begin_src ada :prove t :version 2020 :unit spark_run
+#+begin_src ada :prove t :version 2020 :unit main
 
   --  press Ctrl-C Ctrl-C to evaluate this block
 
@@ -161,7 +161,7 @@ following block code to =t= and =gnatprove= will verify this code.
 When you remove the =prove= argument or set it to =nil=, the SPARK code will be
 compiled and run
 
-#+begin_src ada :version 2020 :unit spark_run
+#+begin_src ada :version 2020 :unit main
 
   --  press Ctrl-C Ctrl-C to evaluate this block
 
