@@ -19,7 +19,7 @@ of literal substitution in source code blocks that allows evaluation of
 from MELPA, or clone this repository if you plan to contribute to it.
 
 CAVEAT: To have font highlight (keywords, variables) in Ada/SPARK code blocks
-in =org-babel= , it is necessary to have [[https://www.nongnu.org/ada-mode][=ada-mode=]] already installed.
+in =org-babel= , it is necessary to have [[https://www.nongnu.org/ada-mode][ada-mode]] already installed.
 Because of some initialization issues, you have open and Ada file in Emacs
 /before/ the =org= file in order to have =ada-mode= activated in the =org=
 file. =ada-mode= package is available in [[https://elpa.gnu.org/][ELPA]].
