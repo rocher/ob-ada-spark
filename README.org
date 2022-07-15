@@ -2,25 +2,27 @@
 
 
 ** Introduction
-=ob-ada-spark.el= file provides support for Ada/SPARK languages in the context
-of Emacs' =org-babel=, part of =org-mode=, to evaluate block codes written in
+=ob-ada-spark= provides support for Ada/SPARK languages in the context of
+Emacs' =org-babel=, part of =org-mode=, to evaluate block codes written in
 different programming languages.
 
-Ada/SPARK supports compiling and running Ada and SPARK code (=gantmake=), as
-well as proving SPARK programs using formal verification tools provided in SPARK
-(=gnatprove=).
+=ob-ada-spark= supports compiling and running Ada and SPARK code
+(=gantmake=), as well as proving SPARK programs using formal verification
+tools provided in SPARK (=gnatprove=).
 
-This is a very preliminary version.
+It has also good support for /literate programming/, with special treatment
+of literal substitution in source code blocks that allows evaluation of
+=elisp= expressions.
 
 ** Installation
-Ada/SPARK support is still not part of Emacs. As long as it cannot be found as
-part of some Emacs distribution, you have to download and load it from this
-repository. For now, just load it in Emacs, open an =org= file and enjoy.
-Additional and detailed information will be provided soon.
+=ob-ada-spark= package can be found in [[https://melpa.org][MELPA]]. Install =ob-ada-spark= package
+from MELPA, or clone this repository if you plan to contribute to it.
 
-CAVEAT: To have font highlight (keywords, variables) in Ada/SPARK code blocks in
-=org-babel= , it is necessary to have =ada-mode= installed and open and Ada file
-in Emacs before the =org= file.
+CAVEAT: To have font highlight (keywords, variables) in Ada/SPARK code blocks
+in =org-babel= , it is necessary to have [[https://www.nongnu.org/ada-mode][=ada-mode=]] already installed.
+Because of some initialization issues, you have open and Ada file in Emacs
+/before/ the =org= file in order to have =ada-mode= activated in the =org=
+file. =ada-mode= package is available in [[https://elpa.gnu.org/][ELPA]].
 
 ** Examples
 Please see some screenshots in the [[file:./images/README.org][images directory]].
