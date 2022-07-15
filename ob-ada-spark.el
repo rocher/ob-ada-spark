@@ -7,7 +7,7 @@
 ;; Keywords: languages, tools, outlines
 ;; URL: https://github.com/rocher/ob-ada-spark
 ;; Package-Requires: ((emacs "26.1") (f "0.20.0"))
-;; Version: 1.2.5c
+;; Version: 1.3.0
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -114,7 +114,7 @@ flags in the `ob-ada-spark-compile-cmd' variable."
           (const :tag "Ada 2012" 2012)
           (const :tag "Ada 2022" 2022)))
 
-(defcustom ob-ada-spark-skel-initial-string (lambda () (format "-----------------------------------------------------------------------------
+(defcustom ob-ada-spark-default-file-header (lambda () (format "-----------------------------------------------------------------------------
 --
 --  Source code generated automatically by 'org-babel-tangle' from
 --  file %s
@@ -340,23 +340,32 @@ Ada and SPARK are compiled languages with no support for
 sessions. SESSION and PARAMS are not support."
   (error "Ada & SPARK are compiled languages -- no support for sessions"))
 
-(defvar ob-ada-spark--ada-skel-initial-string--backup "")
+(defvar ada-skel-initial-string--backup "")
 
 (defun ob-ada-spark-pre-tangle-hook ()
   "This function is called just before `org-babel-tangle'.
 When using tangle to export Ada/SPARK code to a file, this
 function is used to set the header of the file according to the
-value of the variable `ob-ada-spark-skel-initial-string'."
+value of the variable `ob-ada-spark-default-file-header'."
+  ;; ada-skel-initial-string is defined in ada-mode and is inserted
+  ;; automatically when Emacs sets ada-mode in an empty buffer; switching
+  ;; temporarily its value so the ob-ada-spark-default-file-header is
+  ;; inserted
   (if (boundp 'ada-skel-initial-string)
-      (progn (setq ob-ada-spark--ada-skel-initial-string--backup ada-skel-initial-string)
-             (setq ada-skel-initial-string (funcall ob-ada-spark-skel-initial-string)))))
+      (progn (setq ada-skel-initial-string--backup ada-skel-initial-string)
+             (setq ada-skel-initial-string (funcall ob-ada-spark-default-file-header)))))
 
 (defun ob-ada-spark-post-tangle-hook ()
   "This function is called just after `org-babel-tangle'.
 Once the file has been generated, this function restores the
-value of the header inserted into Ada/SPARK buffers."
+value of the header inserted into Ada/SPARK files."
+  ;; if ada-skel-initial-string has not been inserted by ada-mode, then
+  ;; insert the default header
   (if (boundp 'ada-skel-initial-string)
-      (setq ada-skel-initial-string ob-ada-spark--ada-skel-initial-string--backup)))
+      (setq ada-skel-initial-string ada-skel-initial-string--backup)
+    (save-excursion
+      (beginning-of-buffer)
+      (insert (funcall ob-ada-spark-default-file-header)))))
 
 (add-hook 'org-babel-pre-tangle-hook #'ob-ada-spark-pre-tangle-hook)
 (add-hook 'org-babel-post-tangle-hook #'ob-ada-spark-post-tangle-hook)
