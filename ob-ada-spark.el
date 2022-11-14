@@ -7,7 +7,7 @@
 ;; Keywords: languages, tools, outlines
 ;; URL: https://github.com/rocher/ob-ada-spark
 ;; Package-Requires: ((emacs "26.1") (f "0.20.0"))
-;; Version: 1.3.0
+;; Version: 1.3.1
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -55,6 +55,7 @@
                                             (:pedantic . nil)
                                             (:prove . nil)
                                             (:report . all)
+                                            (:switches . nil)
                                             (:template . nil)
                                             (:unit . nil)
                                             (:version . nil)
@@ -69,6 +70,7 @@
                                       (pedantic . (nil t))
                                       (prove . ((nil t)))
                                       (report . ((fail all provers statistics)))
+                                      (switches . any)
                                       (template . :any)
                                       (unit . :any)
                                       (version . ((\83 \95 \2005 \2012 \2022)))
@@ -113,6 +115,14 @@ flags in the `ob-ada-spark-compile-cmd' variable."
           (const :tag "Ada 2005" 2005)
           (const :tag "Ada 2012" 2012)
           (const :tag "Ada 2022" 2022)))
+
+(defcustom ob-ada-spark-default-compiler-switches "-gnatVa"
+  "Default compiler switches for Ada and SPARK.
+This switch list is used for both executing Ada and SPARK code
+and to prove SPARK code. Any additional switch specified as a
+header argument is passed after default ones."
+  :group 'org-babel
+  :type 'string)
 
 (defcustom ob-ada-spark-default-file-header (lambda () (format "-----------------------------------------------------------------------------
 --
@@ -245,10 +255,11 @@ function `org-babel-process-params'.
 
 This function is called by `org-babel-execute:ada'"
   (let* ((assertions (cdr (assq :assertions processed-params)))
+         (switches (cdr (assq :switches processed-params)))
          (version (or (cdr (assq :version processed-params)) 0))
          (default-directory org-babel-temporary-directory)
          (temp-bin-file (ob-ada-spark-temp-file "ada-bin" "" unit t))
-         (compile-cmd (format "%s%s%s -o %s %s"
+         (compile-cmd (format "%s%s%s%s%s -o %s %s"
                               ob-ada-spark-compile-cmd
                               (if (> (+ version ob-ada-spark-version) 0)
                                   (format " -gnat%d"
@@ -258,6 +269,8 @@ This function is called by `org-babel-execute:ada'"
                                 "")
                               (if (null assertions) ""
                                 (concat " " ob-ada-spark-compiler-enable-assertions))
+                              (if (null ob-ada-spark-default-compiler-switches) "" (format " %s" ob-ada-spark-default-compiler-switches))
+                              (if (null switches) "" (format " %s" switches))
                               temp-bin-file
                               temp-src-file)))
 
@@ -296,12 +309,13 @@ This function is called by `org-babel-execute:ada'"
          (mode  (cdr (assq :mode processed-params)))
          (pedantic (cdr (assq :pedantic processed-params)))
          (report (cdr (assq :report processed-params)))
+         (switches (cdr (assq :switches processed-params)))
          (warnings (cdr (assq :warnings processed-params)))
          (default-directory org-babel-temporary-directory)
          (temp-gpr-file
           (ob-ada-spark-temp-file "spark_p" ".gpr" unit))
          (temp-project (f-base temp-gpr-file))
-         (prove-cmd (format "%s -P%s%s%s%s%s%s%s -u %s"
+         (prove-cmd (format "%s -P%s%s%s%s%s%s%s%s%s -u %s"
                             ob-ada-spark-prove-cmd
                             temp-gpr-file
                             (if (null assumptions) "" " --assumptions")
@@ -309,6 +323,8 @@ This function is called by `org-babel-execute:ada'"
                             (if (null mode) "" (format " --mode=%s" mode))
                             (if (null pedantic) "" " --pedantic")
                             (if (null report) "" (format " --report=%s" report))
+                            (if (null ob-ada-spark-default-compiler-switches) "" (format " %s" ob-ada-spark-default-compiler-switches))
+                            (if (null switches) "" (format " %s" switches))
                             (if (null warnings) "" (format " --warnings=%s" warnings))
                             temp-src-file)))
 

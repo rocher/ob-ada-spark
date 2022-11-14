@@ -74,6 +74,9 @@ Ada/SPARK support can be customized with the following variables:
   * =ob-ada-spark-compile-cmd= ::
     set the command to invoke the Ada compiler; default value is =gnatmake=
 
+  * =ob-ada-spark-default-compiler-switches= ::
+    string containing default compiler switches; default value is ="-gnatVa"=
+
   * =ob-ada-spark-version= ::
     default Ada version passed to the compiler; default value is =2012=; the
     only compiler supported is =gnatmake=, so this argument will be passed to
@@ -116,6 +119,11 @@ These are flags and parameters passed to =gnatmake= (or the Ada compiler);
   * =:assertions= ::
     must be =nil= or =t= (default); flag to pass to the compiler to enable
     assertions.
+
+  * =switches= ::
+    string with compiler switches; these switches are passed to the compiler
+    after the switches specified in the custom variable
+    =ob-ada-spark-default-compiler-switches=.
 
   * =template= :: <<template>>
     name of the template to be used in case you want to evaluate a partial
