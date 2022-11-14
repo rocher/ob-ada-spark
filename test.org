@@ -297,11 +297,11 @@ Variables are literally substituted:
 
 #+end_src
 
-*** TODO Variable Substitution in Code Blocks
+*** Variable Substitution in Code Blocks
 Block of code. Cannot be evaluated on its own:
 
 #+name: __Say_Message__
-#+header: :var __MSG__=Hello World!
+#+header: :noweb yes
 #+begin_src ada
 
   Put_Line ("__MSG__");
@@ -311,7 +311,7 @@ Block of code. Cannot be evaluated on its own:
 Block substitution performed here:
 
 #+header: :noweb yes
-#+header: :var __TIMES__=2
+#+header: :var __TIMES__=2 __MSG__="Hello world"
 #+begin_src ada :unit LP_03
 
   --  press Ctrl-C Ctrl-C to evaluate this block
