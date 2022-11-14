@@ -120,6 +120,11 @@ These are flags and parameters passed to =gnatmake= (or the Ada compiler);
     must be =nil= or =t= (default); flag to pass to the compiler to enable
     assertions.
 
+  * =switches= ::
+    string with compiler switches; these switches are passed to the compiler
+    after the switches specified in the custom variable
+    =ob-ada-spark-default-compiler-switches=.
+
   * =template= :: <<template>>
     name of the template to be used in case you want to evaluate a partial
     Ada/SPARK program; for example, the most basic use is =:template proc-main=
