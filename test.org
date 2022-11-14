@@ -51,6 +51,31 @@
 
 #+end_src
 
+*** Additional compiler switches
+**** Support for UTF8 identifiers
+
+#+begin_src ada :version 2020 :unit average :switches -gnatW8
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  with Ada.Text_IO; use Ada.Text_IO;
+  procedure Average is
+     Σ_numbers : Natural := 0;
+     α, β, Δ_x : Natural := 1;
+     Average   : Float;
+  begin
+     loop
+        Σ_numbers := @ + α;
+        exit when α > 100;
+        α := @ + Δ_x;
+        β := @ + 1;
+        Δ_X := @ * 2;
+     end loop;
+     Average := Float (Σ_numbers) / Float (β);
+     Put_Line ("Average:" & Average'Image);
+ end Average;
+
+#+end_src
 
 * Template Support
 ** Basic support
