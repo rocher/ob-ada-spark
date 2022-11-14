@@ -325,3 +325,18 @@ Block substitution performed here:
   end LP_03;
 
 #+end_src
+
+*** Variable Evaluation
+
+#+header: :var __PATH__=(file-name-directory (buffer-file-name (current-buffer)))
+#+begin_src ada :unit LP_04
+
+  --  press Ctrl-C Ctrl-C to evaluate this block
+
+  with Ada.Text_IO; use Ada.Text_IO;
+  procedure LP_04 is
+  begin
+     Put_Line ("Current directory is '__PATH__'");
+  end LP_04;
+
+#+end_src
